@@ -66,6 +66,21 @@
   }
   li.stop.done { background:#eef9ee; }
   li.stop.done h3::before { content:"✓ "; color:#27ae60; }
+  /* Flagged / closed stops — desk-review or prior field outcome.
+     Kept in the list (not hidden) so the fieldworker sees them, but visually
+     muted and without outcome buttons so existing closures (notes especially)
+     are not accidentally overwritten. */
+  li.stop.closed { background:#f6f5f1; border-left:4px solid #c0392b; opacity:0.85; }
+  li.stop.closed h3 { color:#7c7c7c; text-decoration:line-through; }
+  li.stop.closed h3::before { content:""; }
+  .closed-badge { display:block; margin-top:6px; padding:6px 8px;
+    background:#fef2f2; border:1px solid #fecaca; border-radius:4px;
+    font-size:0.82rem; color:#6b1f1f; }
+  .closed-badge.vacant   { background:#fef9e7; border-color:#fde68a; color:#92400e; }
+  .closed-badge.flyer    { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+  .closed-badge.completed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .closed-badge .who   { font-weight:600; }
+  .closed-badge .note  { display:block; margin-top:3px; font-style:italic; color:inherit; opacity:0.85; }
   .stop-notes {
     display:block; width:100%; margin-top:8px; padding:6px 8px;
     font: 13px/1.35 inherit; color:#222; background:#fafafa;
@@ -117,15 +132,15 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:19 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:36 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "StLAWR-D01";
 const PACK_DATE       = "2026-05-15";
-const STOPS           = [{"sample_id":"DRG-7-0802","order":1,"address":"Bryanstown Village","eircode":"","lat":53.7095,"lon":-6.3331,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0803","order":2,"address":"Bryanstown Village","eircode":"","lat":53.7086,"lon":-6.3345,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0804","order":3,"address":"Bryanstown Village","eircode":"","lat":53.7085,"lon":-6.3332,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0805","order":4,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3327,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0806","order":5,"address":"Bryanstown Village","eircode":"","lat":53.7075,"lon":-6.3328,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0807","order":6,"address":"Bryanstown Village","eircode":"","lat":53.7077,"lon":-6.3336,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0808","order":7,"address":"Bryanstown Village","eircode":"","lat":53.7074,"lon":-6.3335,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0809","order":8,"address":"Bryanstown Village","eircode":"","lat":53.7071,"lon":-6.3343,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0810","order":9,"address":"Bryanstown Village","eircode":"","lat":53.7072,"lon":-6.3364,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0811","order":10,"address":"Bryanstown Village","eircode":"","lat":53.7067,"lon":-6.3376,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0812","order":11,"address":"Bryanstown Village","eircode":"","lat":53.7069,"lon":-6.3379,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0813","order":12,"address":"Bryanstown Village","eircode":"","lat":53.7072,"lon":-6.338,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0814","order":13,"address":"Bryanstown Village","eircode":"","lat":53.7067,"lon":-6.3383,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0815","order":14,"address":"Bryanstown Village","eircode":"","lat":53.7068,"lon":-6.3374,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0816","order":15,"address":"Bryanstown Village","eircode":"","lat":53.7068,"lon":-6.3371,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0817","order":16,"address":"Bryanstown Village","eircode":"","lat":53.707,"lon":-6.3379,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0818","order":17,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3351,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0819","order":18,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3353,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0820","order":19,"address":"Bryanstown Village","eircode":"","lat":53.7078,"lon":-6.3348,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0821","order":20,"address":"Bryanstown Village","eircode":"","lat":53.7073,"lon":-6.3349,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0822","order":21,"address":"Bryanstown Village","eircode":"","lat":53.7076,"lon":-6.3348,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0823","order":22,"address":"Bryanstown Village","eircode":"","lat":53.7077,"lon":-6.3357,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0824","order":23,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3358,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0825","order":24,"address":"Bryanstown Village","eircode":"","lat":53.7081,"lon":-6.3356,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0826","order":25,"address":"Bryanstown Village","eircode":"","lat":53.7082,"lon":-6.3353,"ed_name":"St. LAWRENCE GATE","cluster_id":{}}];
-const RESERVES        = [{"sample_id":"DRG-7-0837","order":1,"address":"Bryanstown Village","eircode":"","lat":53.7094,"lon":-6.3329,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0838","order":2,"address":"Bryanstown Village","eircode":"","lat":53.7084,"lon":-6.3326,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0839","order":3,"address":"Bryanstown Village","eircode":"","lat":53.7075,"lon":-6.3343,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0840","order":4,"address":"The Grove","eircode":"","lat":53.707,"lon":-6.3366,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0841","order":5,"address":"Bryanstown Village","eircode":"","lat":53.7066,"lon":-6.3382,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0842","order":6,"address":"Bryanstown Village","eircode":"","lat":53.7068,"lon":-6.3372,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0843","order":7,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3348,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0844","order":8,"address":"Bryanstown Village","eircode":"","lat":53.7077,"lon":-6.3357,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0845","order":9,"address":"Bryanstown Village","eircode":"","lat":53.7082,"lon":-6.3352,"ed_name":"St. LAWRENCE GATE","cluster_id":{}},{"sample_id":"DRG-7-0846","order":10,"address":"Bryanstown Village","eircode":"","lat":53.7072,"lon":-6.3354,"ed_name":"St. LAWRENCE GATE","cluster_id":{}}];
+const STOPS           = [{"sample_id":"DRG-7-0802","order":1,"address":"Bryanstown Village","eircode":"","lat":53.7095,"lon":-6.3331,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0803","order":2,"address":"Bryanstown Village","eircode":"","lat":53.7086,"lon":-6.3345,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0804","order":3,"address":"Bryanstown Village","eircode":"","lat":53.7085,"lon":-6.3332,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0805","order":4,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3327,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0806","order":5,"address":"Bryanstown Village","eircode":"","lat":53.7075,"lon":-6.3328,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0807","order":6,"address":"Bryanstown Village","eircode":"","lat":53.7077,"lon":-6.3336,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0808","order":7,"address":"Bryanstown Village","eircode":"","lat":53.7074,"lon":-6.3335,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0809","order":8,"address":"Bryanstown Village","eircode":"","lat":53.7071,"lon":-6.3343,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0810","order":9,"address":"Bryanstown Village","eircode":"","lat":53.7072,"lon":-6.3364,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0811","order":10,"address":"Bryanstown Village","eircode":"","lat":53.7067,"lon":-6.3376,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0812","order":11,"address":"Bryanstown Village","eircode":"","lat":53.7069,"lon":-6.3379,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0813","order":12,"address":"Bryanstown Village","eircode":"","lat":53.7072,"lon":-6.338,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0814","order":13,"address":"Bryanstown Village","eircode":"","lat":53.7067,"lon":-6.3383,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0815","order":14,"address":"Bryanstown Village","eircode":"","lat":53.7068,"lon":-6.3374,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0816","order":15,"address":"Bryanstown Village","eircode":"","lat":53.7068,"lon":-6.3371,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0817","order":16,"address":"Bryanstown Village","eircode":"","lat":53.707,"lon":-6.3379,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0818","order":17,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3351,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0819","order":18,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3353,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0820","order":19,"address":"Bryanstown Village","eircode":"","lat":53.7078,"lon":-6.3348,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0821","order":20,"address":"Bryanstown Village","eircode":"","lat":53.7073,"lon":-6.3349,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0822","order":21,"address":"Bryanstown Village","eircode":"","lat":53.7076,"lon":-6.3348,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0823","order":22,"address":"Bryanstown Village","eircode":"","lat":53.7077,"lon":-6.3357,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0824","order":23,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3358,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0825","order":24,"address":"Bryanstown Village","eircode":"","lat":53.7081,"lon":-6.3356,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0826","order":25,"address":"Bryanstown Village","eircode":"","lat":53.7082,"lon":-6.3353,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-7-0837","order":1,"address":"Bryanstown Village","eircode":"","lat":53.7094,"lon":-6.3329,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0838","order":2,"address":"Bryanstown Village","eircode":"","lat":53.7084,"lon":-6.3326,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0839","order":3,"address":"Bryanstown Village","eircode":"","lat":53.7075,"lon":-6.3343,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0840","order":4,"address":"The Grove","eircode":"","lat":53.707,"lon":-6.3366,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0841","order":5,"address":"Bryanstown Village","eircode":"","lat":53.7066,"lon":-6.3382,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0842","order":6,"address":"Bryanstown Village","eircode":"","lat":53.7068,"lon":-6.3372,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0843","order":7,"address":"Bryanstown Village","eircode":"","lat":53.7079,"lon":-6.3348,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0844","order":8,"address":"Bryanstown Village","eircode":"","lat":53.7077,"lon":-6.3357,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0845","order":9,"address":"Bryanstown Village","eircode":"","lat":53.7082,"lon":-6.3352,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-7-0846","order":10,"address":"Bryanstown Village","eircode":"","lat":53.7072,"lon":-6.3354,"ed_name":"St. LAWRENCE GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -206,7 +221,10 @@ function renderStops(){
   ul.innerHTML = "";
   STOPS.forEach(s => {
     const li = document.createElement("li");
-    li.className = "stop" + (state[s.sample_id] ? " done" : "");
+    const cls = ["stop"];
+    if (s.closed)            cls.push("closed");
+    else if (state[s.sample_id]) cls.push("done");
+    li.className = cls.join(" ");
     li.id = "stop-" + s.sample_id;
     const subParts = [];
     if (s.eircode) subParts.push("Eircode " + s.eircode);
@@ -224,8 +242,8 @@ function renderStops(){
     a.textContent = "Directions ▸";
 
     const survey = document.createElement("a");
-    survey.className = "start-survey" + (QUALTRICS_BASE ? "" : " disabled");
-    survey.href = QUALTRICS_BASE ? surveyUrl(s) : "#";
+    survey.className = "start-survey" + ((QUALTRICS_BASE && !s.closed) ? "" : " disabled");
+    survey.href = (QUALTRICS_BASE && !s.closed) ? surveyUrl(s) : "#";
     survey.target = "_blank";
     survey.rel = "noopener";
     survey.textContent = QUALTRICS_BASE ? "▶ Start survey on this device" : "(survey URL not configured)";
@@ -276,8 +294,28 @@ function renderStops(){
     li.appendChild(a);
     li.appendChild(document.createElement("br"));
     li.appendChild(survey);
-    li.appendChild(outsDiv);
-    li.appendChild(notesEl);
+    if (s.closed) {
+      // Show a badge with the closure reason and skip the buttons + notes input.
+      // Tapping an outcome here is intentionally disabled to protect the existing
+      // closure (especially desk-review notes); to override, edit the Sheet directly.
+      const badge = document.createElement("div");
+      const outcomeLower = (s.closed_outcome || "").toLowerCase();
+      badge.className = "closed-badge" +
+        (outcomeLower.indexOf("vacant") >= 0      ? " vacant" :
+         outcomeLower.indexOf("flyer")  >= 0      ? " flyer"  :
+         outcomeLower === "completed"             ? " completed" : "");
+      let inner = "🚫 <strong>Flagged closed:</strong> " +
+        (s.closed_outcome || "(unknown)") +
+        (s.closed_enumerator ? ' <span class="who">— by ' + s.closed_enumerator + "</span>" : "");
+      if (s.closed_note) {
+        inner += '<span class="note">"' + s.closed_note.replace(/"/g,"&quot;") + '"</span>';
+      }
+      badge.innerHTML = inner;
+      li.appendChild(badge);
+    } else {
+      li.appendChild(outsDiv);
+      li.appendChild(notesEl);
+    }
     ul.appendChild(li);
   });
 }

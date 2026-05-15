@@ -66,6 +66,21 @@
   }
   li.stop.done { background:#eef9ee; }
   li.stop.done h3::before { content:"✓ "; color:#27ae60; }
+  /* Flagged / closed stops — desk-review or prior field outcome.
+     Kept in the list (not hidden) so the fieldworker sees them, but visually
+     muted and without outcome buttons so existing closures (notes especially)
+     are not accidentally overwritten. */
+  li.stop.closed { background:#f6f5f1; border-left:4px solid #c0392b; opacity:0.85; }
+  li.stop.closed h3 { color:#7c7c7c; text-decoration:line-through; }
+  li.stop.closed h3::before { content:""; }
+  .closed-badge { display:block; margin-top:6px; padding:6px 8px;
+    background:#fef2f2; border:1px solid #fecaca; border-radius:4px;
+    font-size:0.82rem; color:#6b1f1f; }
+  .closed-badge.vacant   { background:#fef9e7; border-color:#fde68a; color:#92400e; }
+  .closed-badge.flyer    { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+  .closed-badge.completed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .closed-badge .who   { font-weight:600; }
+  .closed-badge .note  { display:block; margin-top:3px; font-style:italic; color:inherit; opacity:0.85; }
   .stop-notes {
     display:block; width:100%; margin-top:8px; padding:6px 8px;
     font: 13px/1.35 inherit; color:#222; background:#fafafa;
@@ -89,7 +104,7 @@
 <body>
 <header>
   <h1>TERMONFECKIN &middot; Pack TERMON-D01</h1>
-  <div class="meta">Date: 2026-05-15 &middot; 16 stops &middot; No quota gate &mdash; offer link to everyone who answers</div>
+  <div class="meta">Date: 2026-05-15 &middot; 25 stops &middot; No quota gate &mdash; offer link to everyone who answers</div>
   <span class="sync-pill" id="sync-pill">…</span>
 </header>
 
@@ -117,15 +132,15 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:19 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:36 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "TERMON-D01";
 const PACK_DATE       = "2026-05-15";
-const STOPS           = [{"sample_id":"DRG-5-0642","order":3,"address":"Balfeddock Manor","eircode":"","lat":53.7374,"lon":-6.273,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0644","order":5,"address":"Balfeddock Manor","eircode":"","lat":53.7471,"lon":-6.2759,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0647","order":8,"address":"Balfeddock Manor","eircode":"","lat":53.745,"lon":-6.2781,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0648","order":9,"address":"Balfeddock Manor","eircode":"","lat":53.738,"lon":-6.2732,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0649","order":10,"address":"Balfeddock Manor","eircode":"","lat":53.7374,"lon":-6.2719,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0650","order":11,"address":"Balfeddock Manor","eircode":"","lat":53.7533,"lon":-6.276,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0653","order":14,"address":"Balfeddock Manor","eircode":"","lat":53.7553,"lon":-6.273,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0654","order":15,"address":"Balfeddock Manor","eircode":"","lat":53.7507,"lon":-6.2731,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0655","order":16,"address":"Balfeddock Manor","eircode":"","lat":53.7381,"lon":-6.2704,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0656","order":17,"address":"Balfeddock Manor","eircode":"","lat":53.7508,"lon":-6.2743,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0657","order":18,"address":"Balfeddock Manor","eircode":"","lat":53.7493,"lon":-6.2742,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0658","order":19,"address":"Balfeddock Manor","eircode":"","lat":53.7493,"lon":-6.2734,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0659","order":20,"address":"Balfeddock Manor","eircode":"","lat":53.7554,"lon":-6.269,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0662","order":23,"address":"Balfeddock Manor","eircode":"","lat":53.754,"lon":-6.2734,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0663","order":24,"address":"Balfeddock Manor","eircode":"","lat":53.7533,"lon":-6.2737,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0664","order":25,"address":"Balfeddock Manor","eircode":"","lat":53.7531,"lon":-6.2744,"ed_name":"TERMONFECKIN","cluster_id":{}}];
-const RESERVES        = [{"sample_id":"DRG-5-0684","order":1,"address":"Balfeddock Manor","eircode":"","lat":53.7442,"lon":-6.2785,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0685","order":2,"address":"Balfeddock Manor","eircode":"","lat":53.7449,"lon":-6.2774,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0686","order":3,"address":"Balfeddock Manor","eircode":"","lat":53.7406,"lon":-6.2765,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0687","order":4,"address":"Balfeddock Manor","eircode":"","lat":53.7372,"lon":-6.2712,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0688","order":5,"address":"Balfeddock Manor","eircode":"","lat":53.7546,"lon":-6.2755,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0689","order":6,"address":"Balfeddock Manor","eircode":"","lat":53.7523,"lon":-6.2729,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0690","order":7,"address":"Balfeddock Manor","eircode":"","lat":53.7504,"lon":-6.2743,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0691","order":8,"address":"Balfeddock Manor","eircode":"","lat":53.7565,"lon":-6.2726,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0692","order":9,"address":"Balfeddock Manor","eircode":"","lat":53.7532,"lon":-6.2751,"ed_name":"TERMONFECKIN","cluster_id":{}},{"sample_id":"DRG-5-0693","order":10,"address":"Balfeddock Manor","eircode":"","lat":53.753,"lon":-6.2737,"ed_name":"TERMONFECKIN","cluster_id":{}}];
+const STOPS           = [{"sample_id":"DRG-5-0640","order":1,"address":"Balfeddock Manor","eircode":"","lat":53.7512,"lon":-6.2884,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Not residential","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0641","order":2,"address":"Balfeddock Manor","eircode":"","lat":53.7468,"lon":-6.2935,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Completed","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0642","order":3,"address":"Balfeddock Manor","eircode":"","lat":53.7374,"lon":-6.273,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0643","order":4,"address":"Balfeddock Manor","eircode":"","lat":53.7436,"lon":-6.2749,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0644","order":5,"address":"Balfeddock Manor","eircode":"","lat":53.7471,"lon":-6.2759,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0645","order":6,"address":"Balfeddock Manor","eircode":"","lat":53.7385,"lon":-6.274,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0646","order":7,"address":"Balfeddock Manor","eircode":"","lat":53.7369,"lon":-6.2753,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Not residential","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0647","order":8,"address":"Balfeddock Manor","eircode":"","lat":53.745,"lon":-6.2781,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0648","order":9,"address":"Balfeddock Manor","eircode":"","lat":53.738,"lon":-6.2732,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0649","order":10,"address":"Balfeddock Manor","eircode":"","lat":53.7374,"lon":-6.2719,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0650","order":11,"address":"Balfeddock Manor","eircode":"","lat":53.7533,"lon":-6.276,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0651","order":12,"address":"Balfeddock Manor","eircode":"","lat":53.7538,"lon":-6.2757,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0652","order":13,"address":"Balfeddock Manor","eircode":"","lat":53.7545,"lon":-6.2755,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Refused","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0653","order":14,"address":"Balfeddock Manor","eircode":"","lat":53.7553,"lon":-6.273,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0654","order":15,"address":"Balfeddock Manor","eircode":"","lat":53.7507,"lon":-6.2731,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0655","order":16,"address":"Balfeddock Manor","eircode":"","lat":53.7381,"lon":-6.2704,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0656","order":17,"address":"Balfeddock Manor","eircode":"","lat":53.7508,"lon":-6.2743,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0657","order":18,"address":"Balfeddock Manor","eircode":"","lat":53.7493,"lon":-6.2742,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0658","order":19,"address":"Balfeddock Manor","eircode":"","lat":53.7493,"lon":-6.2734,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0659","order":20,"address":"Balfeddock Manor","eircode":"","lat":53.7554,"lon":-6.269,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0660","order":21,"address":"Balfeddock Manor","eircode":"","lat":53.754,"lon":-6.275,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Completed","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0661","order":22,"address":"Balfeddock Manor","eircode":"","lat":53.7531,"lon":-6.2748,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":true,"closed_outcome":"Refused","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0662","order":23,"address":"Balfeddock Manor","eircode":"","lat":53.754,"lon":-6.2734,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""},{"sample_id":"DRG-5-0663","order":24,"address":"Balfeddock Manor","eircode":"","lat":53.7533,"lon":-6.2737,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0664","order":25,"address":"Balfeddock Manor","eircode":"","lat":53.7531,"lon":-6.2744,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"No answer","closed_enumerator":"Paul","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-5-0684","order":1,"address":"Balfeddock Manor","eircode":"","lat":53.7442,"lon":-6.2785,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0685","order":2,"address":"Balfeddock Manor","eircode":"","lat":53.7449,"lon":-6.2774,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0686","order":3,"address":"Balfeddock Manor","eircode":"","lat":53.7406,"lon":-6.2765,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0687","order":4,"address":"Balfeddock Manor","eircode":"","lat":53.7372,"lon":-6.2712,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0688","order":5,"address":"Balfeddock Manor","eircode":"","lat":53.7546,"lon":-6.2755,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0689","order":6,"address":"Balfeddock Manor","eircode":"","lat":53.7523,"lon":-6.2729,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0690","order":7,"address":"Balfeddock Manor","eircode":"","lat":53.7504,"lon":-6.2743,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0691","order":8,"address":"Balfeddock Manor","eircode":"","lat":53.7565,"lon":-6.2726,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0692","order":9,"address":"Balfeddock Manor","eircode":"","lat":53.7532,"lon":-6.2751,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-5-0693","order":10,"address":"Balfeddock Manor","eircode":"","lat":53.753,"lon":-6.2737,"ed_name":"TERMONFECKIN","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -206,7 +221,10 @@ function renderStops(){
   ul.innerHTML = "";
   STOPS.forEach(s => {
     const li = document.createElement("li");
-    li.className = "stop" + (state[s.sample_id] ? " done" : "");
+    const cls = ["stop"];
+    if (s.closed)            cls.push("closed");
+    else if (state[s.sample_id]) cls.push("done");
+    li.className = cls.join(" ");
     li.id = "stop-" + s.sample_id;
     const subParts = [];
     if (s.eircode) subParts.push("Eircode " + s.eircode);
@@ -224,8 +242,8 @@ function renderStops(){
     a.textContent = "Directions ▸";
 
     const survey = document.createElement("a");
-    survey.className = "start-survey" + (QUALTRICS_BASE ? "" : " disabled");
-    survey.href = QUALTRICS_BASE ? surveyUrl(s) : "#";
+    survey.className = "start-survey" + ((QUALTRICS_BASE && !s.closed) ? "" : " disabled");
+    survey.href = (QUALTRICS_BASE && !s.closed) ? surveyUrl(s) : "#";
     survey.target = "_blank";
     survey.rel = "noopener";
     survey.textContent = QUALTRICS_BASE ? "▶ Start survey on this device" : "(survey URL not configured)";
@@ -276,8 +294,28 @@ function renderStops(){
     li.appendChild(a);
     li.appendChild(document.createElement("br"));
     li.appendChild(survey);
-    li.appendChild(outsDiv);
-    li.appendChild(notesEl);
+    if (s.closed) {
+      // Show a badge with the closure reason and skip the buttons + notes input.
+      // Tapping an outcome here is intentionally disabled to protect the existing
+      // closure (especially desk-review notes); to override, edit the Sheet directly.
+      const badge = document.createElement("div");
+      const outcomeLower = (s.closed_outcome || "").toLowerCase();
+      badge.className = "closed-badge" +
+        (outcomeLower.indexOf("vacant") >= 0      ? " vacant" :
+         outcomeLower.indexOf("flyer")  >= 0      ? " flyer"  :
+         outcomeLower === "completed"             ? " completed" : "");
+      let inner = "🚫 <strong>Flagged closed:</strong> " +
+        (s.closed_outcome || "(unknown)") +
+        (s.closed_enumerator ? ' <span class="who">— by ' + s.closed_enumerator + "</span>" : "");
+      if (s.closed_note) {
+        inner += '<span class="note">"' + s.closed_note.replace(/"/g,"&quot;") + '"</span>';
+      }
+      badge.innerHTML = inner;
+      li.appendChild(badge);
+    } else {
+      li.appendChild(outsDiv);
+      li.appendChild(notesEl);
+    }
     ul.appendChild(li);
   });
 }
@@ -553,7 +591,7 @@ renderSyncPill();
 flushUnsynced();
 pingOpen(false);
 
-const map = L.map("map").setView([53.74797, -6.2735715], 16);
+const map = L.map("map").setView([53.747999, -6.2753678], 16);
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap contributors"

@@ -66,6 +66,21 @@
   }
   li.stop.done { background:#eef9ee; }
   li.stop.done h3::before { content:"✓ "; color:#27ae60; }
+  /* Flagged / closed stops — desk-review or prior field outcome.
+     Kept in the list (not hidden) so the fieldworker sees them, but visually
+     muted and without outcome buttons so existing closures (notes especially)
+     are not accidentally overwritten. */
+  li.stop.closed { background:#f6f5f1; border-left:4px solid #c0392b; opacity:0.85; }
+  li.stop.closed h3 { color:#7c7c7c; text-decoration:line-through; }
+  li.stop.closed h3::before { content:""; }
+  .closed-badge { display:block; margin-top:6px; padding:6px 8px;
+    background:#fef2f2; border:1px solid #fecaca; border-radius:4px;
+    font-size:0.82rem; color:#6b1f1f; }
+  .closed-badge.vacant   { background:#fef9e7; border-color:#fde68a; color:#92400e; }
+  .closed-badge.flyer    { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+  .closed-badge.completed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .closed-badge .who   { font-weight:600; }
+  .closed-badge .note  { display:block; margin-top:3px; font-style:italic; color:inherit; opacity:0.85; }
   .stop-notes {
     display:block; width:100%; margin-top:8px; padding:6px 8px;
     font: 13px/1.35 inherit; color:#222; background:#fafafa;
@@ -117,15 +132,15 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:19 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:36 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "StPETE-D01";
 const PACK_DATE       = "2026-05-15";
-const STOPS           = [{"sample_id":"DRG-1-0001","order":1,"address":"Twenties Lane","eircode":"","lat":53.7294,"lon":-6.3508,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0002","order":2,"address":"Twenties Lane","eircode":"","lat":53.7301,"lon":-6.3547,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0003","order":3,"address":"Twenties Lane","eircode":"","lat":53.7296,"lon":-6.3545,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0004","order":4,"address":"Twenties Lane","eircode":"","lat":53.7293,"lon":-6.3555,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0005","order":5,"address":"Twenties Lane","eircode":"","lat":53.7294,"lon":-6.3563,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0006","order":6,"address":"Twenties Lane","eircode":"","lat":53.7302,"lon":-6.3553,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0007","order":7,"address":"Twenties Lane","eircode":"","lat":53.7297,"lon":-6.3567,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0008","order":8,"address":"Twenties Lane","eircode":"","lat":53.7297,"lon":-6.3508,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0009","order":9,"address":"Twenties Lane","eircode":"","lat":53.729,"lon":-6.3559,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0010","order":10,"address":"Twenties Lane","eircode":"","lat":53.7288,"lon":-6.3553,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0011","order":11,"address":"Twenties Lane","eircode":"","lat":53.7287,"lon":-6.3542,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0012","order":12,"address":"Twenties Lane","eircode":"","lat":53.729,"lon":-6.3534,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0013","order":13,"address":"Twenties Lane","eircode":"","lat":53.7291,"lon":-6.3544,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0014","order":14,"address":"Twenties Lane","eircode":"","lat":53.7299,"lon":-6.3579,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0015","order":15,"address":"Twenties Lane","eircode":"","lat":53.7304,"lon":-6.3573,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0016","order":16,"address":"Twenties Lane","eircode":"","lat":53.7306,"lon":-6.3556,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0017","order":17,"address":"Twenties Lane","eircode":"","lat":53.7304,"lon":-6.353,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0018","order":18,"address":"Twenties Lane","eircode":"","lat":53.7311,"lon":-6.3544,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0019","order":19,"address":"Twenties Lane","eircode":"","lat":53.731,"lon":-6.3538,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0020","order":20,"address":"Twenties Lane","eircode":"","lat":53.731,"lon":-6.3557,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0021","order":21,"address":"Twenties Lane","eircode":"","lat":53.7312,"lon":-6.3528,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0022","order":22,"address":"Twenties Lane","eircode":"","lat":53.7314,"lon":-6.3539,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0023","order":23,"address":"Twenties Lane","eircode":"","lat":53.7339,"lon":-6.3586,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0024","order":24,"address":"Twenties Lane","eircode":"","lat":53.7428,"lon":-6.3841,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0025","order":25,"address":"Twenties Lane","eircode":"","lat":53.7493,"lon":-6.3605,"ed_name":"St. PETER'S","cluster_id":{}}];
-const RESERVES        = [{"sample_id":"DRG-1-0141","order":1,"address":"Twenties Lane","eircode":"","lat":53.7294,"lon":-6.3575,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0142","order":2,"address":"Twenties Lane","eircode":"","lat":53.7298,"lon":-6.3555,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0143","order":3,"address":"Twenties Lane","eircode":"","lat":53.7297,"lon":-6.3564,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0144","order":4,"address":"Twenties Lane","eircode":"","lat":53.7286,"lon":-6.3573,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0145","order":5,"address":"Twenties Lane","eircode":"","lat":53.7286,"lon":-6.3547,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0146","order":6,"address":"Twenties Lane","eircode":"","lat":53.73,"lon":-6.3571,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0147","order":7,"address":"Twenties Lane","eircode":"","lat":53.7306,"lon":-6.3556,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0148","order":8,"address":"Twenties Lane","eircode":"","lat":53.7308,"lon":-6.3532,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0149","order":9,"address":"Twenties Lane","eircode":"","lat":53.7312,"lon":-6.3548,"ed_name":"St. PETER'S","cluster_id":{}},{"sample_id":"DRG-1-0150","order":10,"address":"Twenties Lane","eircode":"","lat":53.7387,"lon":-6.3609,"ed_name":"St. PETER'S","cluster_id":{}}];
+const STOPS           = [{"sample_id":"DRG-1-0001","order":1,"address":"Twenties Lane","eircode":"","lat":53.7294,"lon":-6.3508,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0002","order":2,"address":"Twenties Lane","eircode":"","lat":53.7301,"lon":-6.3547,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0003","order":3,"address":"Twenties Lane","eircode":"","lat":53.7296,"lon":-6.3545,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0004","order":4,"address":"Twenties Lane","eircode":"","lat":53.7293,"lon":-6.3555,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0005","order":5,"address":"Twenties Lane","eircode":"","lat":53.7294,"lon":-6.3563,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0006","order":6,"address":"Twenties Lane","eircode":"","lat":53.7302,"lon":-6.3553,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0007","order":7,"address":"Twenties Lane","eircode":"","lat":53.7297,"lon":-6.3567,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0008","order":8,"address":"Twenties Lane","eircode":"","lat":53.7297,"lon":-6.3508,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0009","order":9,"address":"Twenties Lane","eircode":"","lat":53.729,"lon":-6.3559,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0010","order":10,"address":"Twenties Lane","eircode":"","lat":53.7288,"lon":-6.3553,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0011","order":11,"address":"Twenties Lane","eircode":"","lat":53.7287,"lon":-6.3542,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0012","order":12,"address":"Twenties Lane","eircode":"","lat":53.729,"lon":-6.3534,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0013","order":13,"address":"Twenties Lane","eircode":"","lat":53.7291,"lon":-6.3544,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0014","order":14,"address":"Twenties Lane","eircode":"","lat":53.7299,"lon":-6.3579,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0015","order":15,"address":"Twenties Lane","eircode":"","lat":53.7304,"lon":-6.3573,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0016","order":16,"address":"Twenties Lane","eircode":"","lat":53.7306,"lon":-6.3556,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0017","order":17,"address":"Twenties Lane","eircode":"","lat":53.7304,"lon":-6.353,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0018","order":18,"address":"Twenties Lane","eircode":"","lat":53.7311,"lon":-6.3544,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0019","order":19,"address":"Twenties Lane","eircode":"","lat":53.731,"lon":-6.3538,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0020","order":20,"address":"Twenties Lane","eircode":"","lat":53.731,"lon":-6.3557,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0021","order":21,"address":"Twenties Lane","eircode":"","lat":53.7312,"lon":-6.3528,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0022","order":22,"address":"Twenties Lane","eircode":"","lat":53.7314,"lon":-6.3539,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0023","order":23,"address":"Twenties Lane","eircode":"","lat":53.7339,"lon":-6.3586,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0024","order":24,"address":"Twenties Lane","eircode":"","lat":53.7428,"lon":-6.3841,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0025","order":25,"address":"Twenties Lane","eircode":"","lat":53.7493,"lon":-6.3605,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-1-0141","order":1,"address":"Twenties Lane","eircode":"","lat":53.7294,"lon":-6.3575,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0142","order":2,"address":"Twenties Lane","eircode":"","lat":53.7298,"lon":-6.3555,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0143","order":3,"address":"Twenties Lane","eircode":"","lat":53.7297,"lon":-6.3564,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0144","order":4,"address":"Twenties Lane","eircode":"","lat":53.7286,"lon":-6.3573,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0145","order":5,"address":"Twenties Lane","eircode":"","lat":53.7286,"lon":-6.3547,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0146","order":6,"address":"Twenties Lane","eircode":"","lat":53.73,"lon":-6.3571,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0147","order":7,"address":"Twenties Lane","eircode":"","lat":53.7306,"lon":-6.3556,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0148","order":8,"address":"Twenties Lane","eircode":"","lat":53.7308,"lon":-6.3532,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0149","order":9,"address":"Twenties Lane","eircode":"","lat":53.7312,"lon":-6.3548,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-1-0150","order":10,"address":"Twenties Lane","eircode":"","lat":53.7387,"lon":-6.3609,"ed_name":"St. PETER'S","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -206,7 +221,10 @@ function renderStops(){
   ul.innerHTML = "";
   STOPS.forEach(s => {
     const li = document.createElement("li");
-    li.className = "stop" + (state[s.sample_id] ? " done" : "");
+    const cls = ["stop"];
+    if (s.closed)            cls.push("closed");
+    else if (state[s.sample_id]) cls.push("done");
+    li.className = cls.join(" ");
     li.id = "stop-" + s.sample_id;
     const subParts = [];
     if (s.eircode) subParts.push("Eircode " + s.eircode);
@@ -224,8 +242,8 @@ function renderStops(){
     a.textContent = "Directions ▸";
 
     const survey = document.createElement("a");
-    survey.className = "start-survey" + (QUALTRICS_BASE ? "" : " disabled");
-    survey.href = QUALTRICS_BASE ? surveyUrl(s) : "#";
+    survey.className = "start-survey" + ((QUALTRICS_BASE && !s.closed) ? "" : " disabled");
+    survey.href = (QUALTRICS_BASE && !s.closed) ? surveyUrl(s) : "#";
     survey.target = "_blank";
     survey.rel = "noopener";
     survey.textContent = QUALTRICS_BASE ? "▶ Start survey on this device" : "(survey URL not configured)";
@@ -276,8 +294,28 @@ function renderStops(){
     li.appendChild(a);
     li.appendChild(document.createElement("br"));
     li.appendChild(survey);
-    li.appendChild(outsDiv);
-    li.appendChild(notesEl);
+    if (s.closed) {
+      // Show a badge with the closure reason and skip the buttons + notes input.
+      // Tapping an outcome here is intentionally disabled to protect the existing
+      // closure (especially desk-review notes); to override, edit the Sheet directly.
+      const badge = document.createElement("div");
+      const outcomeLower = (s.closed_outcome || "").toLowerCase();
+      badge.className = "closed-badge" +
+        (outcomeLower.indexOf("vacant") >= 0      ? " vacant" :
+         outcomeLower.indexOf("flyer")  >= 0      ? " flyer"  :
+         outcomeLower === "completed"             ? " completed" : "");
+      let inner = "🚫 <strong>Flagged closed:</strong> " +
+        (s.closed_outcome || "(unknown)") +
+        (s.closed_enumerator ? ' <span class="who">— by ' + s.closed_enumerator + "</span>" : "");
+      if (s.closed_note) {
+        inner += '<span class="note">"' + s.closed_note.replace(/"/g,"&quot;") + '"</span>';
+      }
+      badge.innerHTML = inner;
+      li.appendChild(badge);
+    } else {
+      li.appendChild(outsDiv);
+      li.appendChild(notesEl);
+    }
     ul.appendChild(li);
   });
 }

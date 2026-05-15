@@ -66,6 +66,21 @@
   }
   li.stop.done { background:#eef9ee; }
   li.stop.done h3::before { content:"✓ "; color:#27ae60; }
+  /* Flagged / closed stops — desk-review or prior field outcome.
+     Kept in the list (not hidden) so the fieldworker sees them, but visually
+     muted and without outcome buttons so existing closures (notes especially)
+     are not accidentally overwritten. */
+  li.stop.closed { background:#f6f5f1; border-left:4px solid #c0392b; opacity:0.85; }
+  li.stop.closed h3 { color:#7c7c7c; text-decoration:line-through; }
+  li.stop.closed h3::before { content:""; }
+  .closed-badge { display:block; margin-top:6px; padding:6px 8px;
+    background:#fef2f2; border:1px solid #fecaca; border-radius:4px;
+    font-size:0.82rem; color:#6b1f1f; }
+  .closed-badge.vacant   { background:#fef9e7; border-color:#fde68a; color:#92400e; }
+  .closed-badge.flyer    { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+  .closed-badge.completed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .closed-badge .who   { font-weight:600; }
+  .closed-badge .note  { display:block; margin-top:3px; font-style:italic; color:inherit; opacity:0.85; }
   .stop-notes {
     display:block; width:100%; margin-top:8px; padding:6px 8px;
     font: 13px/1.35 inherit; color:#222; background:#fafafa;
@@ -117,15 +132,15 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:19 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 14:36 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "WESTGA-D01";
 const PACK_DATE       = "2026-05-15";
-const STOPS           = [{"sample_id":"DRG-4-0504","order":1,"address":"Ashfield Green","eircode":"","lat":53.7178,"lon":-6.3643,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0505","order":2,"address":"Ashfield Green","eircode":"","lat":53.7183,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0506","order":3,"address":"Ashfield Green","eircode":"","lat":53.7182,"lon":-6.3636,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0507","order":4,"address":"Ashfield Green","eircode":"","lat":53.7184,"lon":-6.3641,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0508","order":5,"address":"Ashfield Green","eircode":"","lat":53.7183,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0509","order":6,"address":"Ashfield Green","eircode":"","lat":53.7189,"lon":-6.3626,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0510","order":7,"address":"Ashfield Green","eircode":"","lat":53.719,"lon":-6.3617,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0511","order":8,"address":"95 Ashfield Green","eircode":"","lat":53.7191,"lon":-6.3616,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0512","order":9,"address":"94 Ashfield Green","eircode":"","lat":53.7192,"lon":-6.3616,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0513","order":10,"address":"108 Ashfield Green","eircode":"","lat":53.7194,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0514","order":11,"address":"Ashfield Green","eircode":"","lat":53.7193,"lon":-6.3615,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0515","order":12,"address":"Ashfield Green","eircode":"","lat":53.7195,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0516","order":13,"address":"Ashfield Green","eircode":"","lat":53.7194,"lon":-6.3615,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0517","order":14,"address":"Ashfield Green","eircode":"","lat":53.7195,"lon":-6.3615,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0518","order":15,"address":"110 Ashfield Green","eircode":"","lat":53.7196,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0519","order":16,"address":"Ashfield Green","eircode":"","lat":53.7196,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0520","order":17,"address":"Ashfield Green","eircode":"","lat":53.7197,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0521","order":18,"address":"Ashfield Green","eircode":"","lat":53.7197,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0522","order":19,"address":"Ashfield Green","eircode":"","lat":53.7198,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0523","order":20,"address":"Ashfield Green","eircode":"","lat":53.7198,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0524","order":21,"address":"Ashfield Green","eircode":"","lat":53.7199,"lon":-6.3622,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0525","order":22,"address":"Ashfield Green","eircode":"","lat":53.7199,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0526","order":23,"address":"Ashfield Green","eircode":"","lat":53.72,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0527","order":24,"address":"Ashfield Green","eircode":"","lat":53.72,"lon":-6.3622,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0528","order":25,"address":"Ashfield Green","eircode":"","lat":53.7202,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{}}];
-const RESERVES        = [{"sample_id":"DRG-4-0583","order":1,"address":"Ashfield Green","eircode":"","lat":53.7205,"lon":-6.3617,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0584","order":2,"address":"Ashfield Green","eircode":"","lat":53.7201,"lon":-6.3623,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0585","order":3,"address":"116 Ashfield Green","eircode":"","lat":53.7202,"lon":-6.3623,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0586","order":4,"address":"Ashfield Green","eircode":"","lat":53.7206,"lon":-6.3623,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0587","order":5,"address":"Ashfield Green","eircode":"","lat":53.7207,"lon":-6.3627,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0588","order":6,"address":"76 Ashfield Green","eircode":"","lat":53.7207,"lon":-6.3631,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0589","order":7,"address":"Ashfield Green","eircode":"","lat":53.7203,"lon":-6.3634,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0590","order":8,"address":"Ashfield Green","eircode":"","lat":53.7207,"lon":-6.3634,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0591","order":9,"address":"Ashfield Green","eircode":"","lat":53.7208,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":{}},{"sample_id":"DRG-4-0592","order":10,"address":"Ashfield Green","eircode":"","lat":53.721,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":{}}];
+const STOPS           = [{"sample_id":"DRG-4-0504","order":1,"address":"Ashfield Green","eircode":"","lat":53.7178,"lon":-6.3643,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0505","order":2,"address":"Ashfield Green","eircode":"","lat":53.7183,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0506","order":3,"address":"Ashfield Green","eircode":"","lat":53.7182,"lon":-6.3636,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0507","order":4,"address":"Ashfield Green","eircode":"","lat":53.7184,"lon":-6.3641,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0508","order":5,"address":"Ashfield Green","eircode":"","lat":53.7183,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0509","order":6,"address":"Ashfield Green","eircode":"","lat":53.7189,"lon":-6.3626,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0510","order":7,"address":"Ashfield Green","eircode":"","lat":53.719,"lon":-6.3617,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0511","order":8,"address":"95 Ashfield Green","eircode":"","lat":53.7191,"lon":-6.3616,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0512","order":9,"address":"94 Ashfield Green","eircode":"","lat":53.7192,"lon":-6.3616,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0513","order":10,"address":"108 Ashfield Green","eircode":"","lat":53.7194,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0514","order":11,"address":"Ashfield Green","eircode":"","lat":53.7193,"lon":-6.3615,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0515","order":12,"address":"Ashfield Green","eircode":"","lat":53.7195,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0516","order":13,"address":"Ashfield Green","eircode":"","lat":53.7194,"lon":-6.3615,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0517","order":14,"address":"Ashfield Green","eircode":"","lat":53.7195,"lon":-6.3615,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0518","order":15,"address":"110 Ashfield Green","eircode":"","lat":53.7196,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0519","order":16,"address":"Ashfield Green","eircode":"","lat":53.7196,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0520","order":17,"address":"Ashfield Green","eircode":"","lat":53.7197,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0521","order":18,"address":"Ashfield Green","eircode":"","lat":53.7197,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0522","order":19,"address":"Ashfield Green","eircode":"","lat":53.7198,"lon":-6.3621,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0523","order":20,"address":"Ashfield Green","eircode":"","lat":53.7198,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0524","order":21,"address":"Ashfield Green","eircode":"","lat":53.7199,"lon":-6.3622,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0525","order":22,"address":"Ashfield Green","eircode":"","lat":53.7199,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0526","order":23,"address":"Ashfield Green","eircode":"","lat":53.72,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0527","order":24,"address":"Ashfield Green","eircode":"","lat":53.72,"lon":-6.3622,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0528","order":25,"address":"Ashfield Green","eircode":"","lat":53.7202,"lon":-6.3614,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-4-0583","order":1,"address":"Ashfield Green","eircode":"","lat":53.7205,"lon":-6.3617,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0584","order":2,"address":"Ashfield Green","eircode":"","lat":53.7201,"lon":-6.3623,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0585","order":3,"address":"116 Ashfield Green","eircode":"","lat":53.7202,"lon":-6.3623,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0586","order":4,"address":"Ashfield Green","eircode":"","lat":53.7206,"lon":-6.3623,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0587","order":5,"address":"Ashfield Green","eircode":"","lat":53.7207,"lon":-6.3627,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0588","order":6,"address":"76 Ashfield Green","eircode":"","lat":53.7207,"lon":-6.3631,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0589","order":7,"address":"Ashfield Green","eircode":"","lat":53.7203,"lon":-6.3634,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0590","order":8,"address":"Ashfield Green","eircode":"","lat":53.7207,"lon":-6.3634,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0591","order":9,"address":"Ashfield Green","eircode":"","lat":53.7208,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-0592","order":10,"address":"Ashfield Green","eircode":"","lat":53.721,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":{},"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -206,7 +221,10 @@ function renderStops(){
   ul.innerHTML = "";
   STOPS.forEach(s => {
     const li = document.createElement("li");
-    li.className = "stop" + (state[s.sample_id] ? " done" : "");
+    const cls = ["stop"];
+    if (s.closed)            cls.push("closed");
+    else if (state[s.sample_id]) cls.push("done");
+    li.className = cls.join(" ");
     li.id = "stop-" + s.sample_id;
     const subParts = [];
     if (s.eircode) subParts.push("Eircode " + s.eircode);
@@ -224,8 +242,8 @@ function renderStops(){
     a.textContent = "Directions ▸";
 
     const survey = document.createElement("a");
-    survey.className = "start-survey" + (QUALTRICS_BASE ? "" : " disabled");
-    survey.href = QUALTRICS_BASE ? surveyUrl(s) : "#";
+    survey.className = "start-survey" + ((QUALTRICS_BASE && !s.closed) ? "" : " disabled");
+    survey.href = (QUALTRICS_BASE && !s.closed) ? surveyUrl(s) : "#";
     survey.target = "_blank";
     survey.rel = "noopener";
     survey.textContent = QUALTRICS_BASE ? "▶ Start survey on this device" : "(survey URL not configured)";
@@ -276,8 +294,28 @@ function renderStops(){
     li.appendChild(a);
     li.appendChild(document.createElement("br"));
     li.appendChild(survey);
-    li.appendChild(outsDiv);
-    li.appendChild(notesEl);
+    if (s.closed) {
+      // Show a badge with the closure reason and skip the buttons + notes input.
+      // Tapping an outcome here is intentionally disabled to protect the existing
+      // closure (especially desk-review notes); to override, edit the Sheet directly.
+      const badge = document.createElement("div");
+      const outcomeLower = (s.closed_outcome || "").toLowerCase();
+      badge.className = "closed-badge" +
+        (outcomeLower.indexOf("vacant") >= 0      ? " vacant" :
+         outcomeLower.indexOf("flyer")  >= 0      ? " flyer"  :
+         outcomeLower === "completed"             ? " completed" : "");
+      let inner = "🚫 <strong>Flagged closed:</strong> " +
+        (s.closed_outcome || "(unknown)") +
+        (s.closed_enumerator ? ' <span class="who">— by ' + s.closed_enumerator + "</span>" : "");
+      if (s.closed_note) {
+        inner += '<span class="note">"' + s.closed_note.replace(/"/g,"&quot;") + '"</span>';
+      }
+      badge.innerHTML = inner;
+      li.appendChild(badge);
+    } else {
+      li.appendChild(outsDiv);
+      li.appendChild(notesEl);
+    }
     ul.appendChild(li);
   });
 }
