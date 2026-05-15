@@ -24,8 +24,8 @@
   .pvq-progress-total { font-size:1.05rem; margin-bottom:0.7rem; color:#2c3e50; }
   .pvq-progress-total .num { font-weight:700; font-size:1.25rem; }
   .pvq-progress-total .targets { color:#666; font-size:0.85rem; margin-left:6px; font-weight:normal; }
-  .pvq-eds { display:grid; grid-template-columns:1fr; gap:7px; }
-  .pvq-ed { display:grid; grid-template-columns:130px 1fr 96px; gap:10px; align-items:center; font-size:0.85rem; }
+  .pvq-eds { display:grid; grid-template-columns:1fr; gap:10px; }
+  .pvq-ed { display:grid; grid-template-columns:130px 1fr 96px; grid-template-rows:auto auto; gap:4px 10px; align-items:center; font-size:0.85rem; }
   .pvq-ed-label { font-weight:500; }
   .pvq-ed-track { height:10px; background:#e2e8f0; border-radius:5px; overflow:hidden; position:relative; }
   .pvq-ed-track .marker { position:absolute; top:-2px; bottom:-2px; width:2px; background:#475569; opacity:0.55; pointer-events:none; }
@@ -34,6 +34,11 @@
   .pvq-ed.amber .pvq-ed-fill { background:#f39c12; }
   .pvq-ed.green .pvq-ed-fill { background:#27ae60; }
   .pvq-ed-count { color:#444; font-variant-numeric:tabular-nums; text-align:right; }
+  .pvq-ed-rates { grid-column:2 / 4; font-size:0.72rem; color:#666; line-height:1.2; margin-top:-2px; }
+  .pvq-ed-rates .sep { color:#cbd5e0; margin:0 0.35rem; }
+  .pvq-ed-rates .rate { font-variant-numeric:tabular-nums; }
+  .pvq-overall { font-size:0.85rem; color:#555; margin-top:0.8rem; padding-top:0.6rem; border-top:1px dashed #e2e8f0; }
+  .pvq-overall .rate { font-variant-numeric:tabular-nums; font-weight:500; color:#2c3e50; }
   .pvq-legend { color:#666; font-size:0.8rem; margin-top:0.4rem; }
   .pvq-legend .swatch { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:baseline; margin-right:3px; }
 </style>
@@ -67,24 +72,56 @@
         ' <span class="targets">/ ' + min + ' minimum &middot; ' + des + ' desirable (' + pctTotal + '% of desirable)</span>';
       var container = document.getElementById('pvq-eds');
       container.innerHTML = '';
+      function pct(num, denom) {
+        if (!denom) return '0%';
+        return Math.round(100 * num / denom) + '%';
+      }
       s.eds.forEach(function(ed){
         var denom  = Math.max(1, ed.desirable);
-        var pct    = Math.min(100, Math.round((ed.completed / denom) * 100));
+        var fillPct= Math.min(100, Math.round((ed.completed / denom) * 100));
         var minPct = Math.min(100, Math.round((ed.min / denom) * 100));
         var status = 'red';
         if (ed.completed >= ed.desirable)      status = 'green';
         else if (ed.completed >= ed.min)       status = 'amber';
+        var f = ed.field || {};
+        var ratesLine = '';
+        if (f.attempts > 0) {
+          ratesLine =
+            '<div class="pvq-ed-rates">' +
+              '<span class="rate">' + f.attempts + ' attempts</span>' +
+              '<span class="sep">&middot;</span>' +
+              '<span class="rate">refusal ' + pct(f.refused, f.attempts) + '</span>' +
+              '<span class="sep">&middot;</span>' +
+              '<span class="rate">no-answer ' + pct(f.no_answer, f.attempts) + '</span>' +
+              (f.flyer ?   '<span class="sep">&middot;</span><span class="rate">flyer ' + f.flyer + '</span>'         : '') +
+              (f.not_res ? '<span class="sep">&middot;</span><span class="rate">not-res ' + f.not_res + '</span>'     : '') +
+              (f.revisit ? '<span class="sep">&middot;</span><span class="rate">revisit ' + f.revisit + '</span>'     : '') +
+            '</div>';
+        } else {
+          ratesLine = '<div class="pvq-ed-rates"><em>no field attempts yet</em></div>';
+        }
         var div = document.createElement('div');
         div.className = 'pvq-ed ' + status;
         div.innerHTML =
           '<div class="pvq-ed-label">' + ed.ed + '</div>' +
           '<div class="pvq-ed-track">' +
             '<div class="marker" style="left:' + minPct + '%"></div>' +
-            '<div class="pvq-ed-fill" style="width:' + pct + '%"></div>' +
+            '<div class="pvq-ed-fill" style="width:' + fillPct + '%"></div>' +
           '</div>' +
-          '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>';
+          '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>' +
+          ratesLine;
         container.appendChild(div);
       });
+      if (s.overall && s.overall.field_attempts > 0) {
+        var ov = document.createElement('div');
+        ov.className = 'pvq-overall';
+        ov.innerHTML =
+          'Across all field attempts (' + s.overall.field_attempts + '): ' +
+          '<span class="rate">refusal ' + Math.round(100*s.overall.refusal_rate) + '%</span>' +
+          ' &middot; ' +
+          '<span class="rate">no-answer ' + Math.round(100*s.overall.no_answer_rate) + '%</span>';
+        container.appendChild(ov);
+      }
     })
     .catch(function(){
       document.getElementById('pvq-progress-total').textContent = 'Progress unavailable (offline?)';
