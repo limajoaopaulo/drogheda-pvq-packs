@@ -18,6 +18,79 @@
 <h1>Drogheda PVQ field packs</h1>
 <p class="meta">Open the pack for your assigned ED and enumerator slot on your phone.</p>
 <p class="meta">Last published: 2026-05-15</p>
+<style>
+  .pvq-progress { background:#f7f7f9; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px; margin:1.2rem 0; }
+  .pvq-progress h2 { margin:0 0 0.4rem; font-size:1rem; border:none; padding:0; }
+  .pvq-progress-total { font-size:1.05rem; margin-bottom:0.7rem; color:#2c3e50; }
+  .pvq-progress-total .num { font-weight:700; font-size:1.25rem; }
+  .pvq-progress-total .targets { color:#666; font-size:0.85rem; margin-left:6px; font-weight:normal; }
+  .pvq-eds { display:grid; grid-template-columns:1fr; gap:7px; }
+  .pvq-ed { display:grid; grid-template-columns:130px 1fr 96px; gap:10px; align-items:center; font-size:0.85rem; }
+  .pvq-ed-label { font-weight:500; }
+  .pvq-ed-track { height:10px; background:#e2e8f0; border-radius:5px; overflow:hidden; position:relative; }
+  .pvq-ed-track .marker { position:absolute; top:-2px; bottom:-2px; width:2px; background:#475569; opacity:0.55; pointer-events:none; }
+  .pvq-ed-fill  { height:100%; transition:width 600ms ease-out; }
+  .pvq-ed.red   .pvq-ed-fill { background:#c0392b; }
+  .pvq-ed.amber .pvq-ed-fill { background:#f39c12; }
+  .pvq-ed.green .pvq-ed-fill { background:#27ae60; }
+  .pvq-ed-count { color:#444; font-variant-numeric:tabular-nums; text-align:right; }
+  .pvq-legend { color:#666; font-size:0.8rem; margin-top:0.4rem; }
+  .pvq-legend .swatch { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:baseline; margin-right:3px; }
+</style>
+<div class="pvq-progress" id="pvq-progress" data-endpoint="https://pvq-field-webhook.joao-dlima.workers.dev">
+  <h2>Live progress</h2>
+  <div class="pvq-progress-total" id="pvq-progress-total">Loading…</div>
+  <div class="pvq-eds" id="pvq-eds"></div>
+  <div class="pvq-legend">
+    <span class="swatch" style="background:#c0392b"></span> below minimum &nbsp;
+    <span class="swatch" style="background:#f39c12"></span> minimum reached &nbsp;
+    <span class="swatch" style="background:#27ae60"></span> desirable reached &nbsp;
+    | tick marks the minimum on each bar
+  </div>
+</div>
+<script>
+(function(){
+  var root = document.getElementById('pvq-progress');
+  if (!root) return;
+  fetch(root.dataset.endpoint, {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var s = j && j.stats;
+      if (!s || s.error) {
+        document.getElementById('pvq-progress-total').textContent = 'Progress unavailable';
+        return;
+      }
+      var min = s.target_minimum, des = s.target_desirable, t = s.total;
+      var pctTotal = Math.min(100, Math.round((t / des) * 100));
+      document.getElementById('pvq-progress-total').innerHTML =
+        '<span class="num">' + t + '</span> completed' +
+        ' <span class="targets">/ ' + min + ' minimum &middot; ' + des + ' desirable (' + pctTotal + '% of desirable)</span>';
+      var container = document.getElementById('pvq-eds');
+      container.innerHTML = '';
+      s.eds.forEach(function(ed){
+        var denom  = Math.max(1, ed.desirable);
+        var pct    = Math.min(100, Math.round((ed.completed / denom) * 100));
+        var minPct = Math.min(100, Math.round((ed.min / denom) * 100));
+        var status = 'red';
+        if (ed.completed >= ed.desirable)      status = 'green';
+        else if (ed.completed >= ed.min)       status = 'amber';
+        var div = document.createElement('div');
+        div.className = 'pvq-ed ' + status;
+        div.innerHTML =
+          '<div class="pvq-ed-label">' + ed.ed + '</div>' +
+          '<div class="pvq-ed-track">' +
+            '<div class="marker" style="left:' + minPct + '%"></div>' +
+            '<div class="pvq-ed-fill" style="width:' + pct + '%"></div>' +
+          '</div>' +
+          '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>';
+        container.appendChild(div);
+      });
+    })
+    .catch(function(){
+      document.getElementById('pvq-progress-total').textContent = 'Progress unavailable (offline?)';
+    });
+})();
+</script>
 <h2>Clogher</h2>
 <ul>
   <li><a href="packs/CLOGHE-D01__20260515.html"><code>CLOGHE-D01</code></a> <span class="meta">20260515</span></li>
