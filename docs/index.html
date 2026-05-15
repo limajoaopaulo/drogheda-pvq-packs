@@ -29,10 +29,11 @@
   .pvq-ed-label { font-weight:500; }
   .pvq-ed-track { height:10px; background:#e2e8f0; border-radius:5px; overflow:hidden; position:relative; }
   .pvq-ed-track .marker { position:absolute; top:-2px; bottom:-2px; width:2px; background:#475569; opacity:0.55; pointer-events:none; }
-  .pvq-ed-fill  { height:100%; transition:width 600ms ease-out; }
-  .pvq-ed.red   .pvq-ed-fill { background:#c0392b; }
-  .pvq-ed.amber .pvq-ed-fill { background:#f39c12; }
-  .pvq-ed.green .pvq-ed-fill { background:#27ae60; }
+  .pvq-ed-fill  { height:100%; transition:width 600ms ease-out, background-color 400ms ease-out; }
+  /* Fill background is set inline by JS — see colourFor(ed). Three regimes:
+     below min → variable red→yellow hsl gradient based on how close to min
+     min ≤ x < desirable → solid green
+     x ≥ desirable → solid purple. */
   .pvq-ed-count { color:#444; font-variant-numeric:tabular-nums; text-align:right; }
   .pvq-ed-rates { grid-column:2 / 4; font-size:0.72rem; color:#666; line-height:1.2; margin-top:-2px; }
   .pvq-ed-rates .sep { color:#cbd5e0; margin:0 0.35rem; }
@@ -47,9 +48,9 @@
   <div class="pvq-progress-total" id="pvq-progress-total">Loading…</div>
   <div class="pvq-eds" id="pvq-eds"></div>
   <div class="pvq-legend">
-    <span class="swatch" style="background:#c0392b"></span> below minimum &nbsp;
-    <span class="swatch" style="background:#f39c12"></span> minimum reached &nbsp;
-    <span class="swatch" style="background:#27ae60"></span> desirable reached &nbsp;
+    <span class="swatch" style="background:linear-gradient(to right,hsl(0,80%,50%),hsl(60,80%,50%))"></span> below minimum (warms as it approaches) &nbsp;
+    <span class="swatch" style="background:#27ae60"></span> minimum reached &nbsp;
+    <span class="swatch" style="background:#9333ea"></span> desirable reached &nbsp;
     | tick marks the minimum on each bar
   </div>
 </div>
@@ -76,13 +77,19 @@
         if (!denom) return '0%';
         return Math.round(100 * num / denom) + '%';
       }
+      function colourFor(ed) {
+        if (ed.completed >= ed.desirable) return '#9333ea';                          // purple
+        if (ed.completed >= ed.min)       return '#27ae60';                          // green
+        // Below min: gradient red (0%) → yellow (at min). Saturated, so it's clearly "warming up".
+        var t = ed.min > 0 ? Math.min(1, ed.completed / ed.min) : 0;
+        var hue = Math.round(60 * t);
+        return 'hsl(' + hue + ', 80%, 50%)';
+      }
       s.eds.forEach(function(ed){
         var denom  = Math.max(1, ed.desirable);
         var fillPct= Math.min(100, Math.round((ed.completed / denom) * 100));
         var minPct = Math.min(100, Math.round((ed.min / denom) * 100));
-        var status = 'red';
-        if (ed.completed >= ed.desirable)      status = 'green';
-        else if (ed.completed >= ed.min)       status = 'amber';
+        var fillColour = colourFor(ed);
         var f = ed.field || {};
         var ratesLine = '';
         if (f.attempts > 0) {
@@ -101,12 +108,12 @@
           ratesLine = '<div class="pvq-ed-rates"><em>no field attempts yet</em></div>';
         }
         var div = document.createElement('div');
-        div.className = 'pvq-ed ' + status;
+        div.className = 'pvq-ed';
         div.innerHTML =
           '<div class="pvq-ed-label">' + ed.ed + '</div>' +
           '<div class="pvq-ed-track">' +
             '<div class="marker" style="left:' + minPct + '%"></div>' +
-            '<div class="pvq-ed-fill" style="width:' + fillPct + '%"></div>' +
+            '<div class="pvq-ed-fill" style="width:' + fillPct + '%; background:' + fillColour + ';"></div>' +
           '</div>' +
           '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>' +
           ratesLine;
