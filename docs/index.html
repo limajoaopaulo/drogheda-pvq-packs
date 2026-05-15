@@ -35,11 +35,10 @@
      min ≤ x < desirable → solid green
      x ≥ desirable → solid purple. */
   .pvq-ed-count { color:#444; font-variant-numeric:tabular-nums; text-align:right; }
-  .pvq-ed-rates { grid-column:2 / 4; font-size:0.72rem; color:#666; line-height:1.2; margin-top:-2px; }
-  .pvq-ed-rates .sep { color:#cbd5e0; margin:0 0.35rem; }
-  .pvq-ed-rates .rate { font-variant-numeric:tabular-nums; }
-  .pvq-overall { font-size:0.85rem; color:#555; margin-top:0.8rem; padding-top:0.6rem; border-top:1px dashed #e2e8f0; }
-  .pvq-overall .rate { font-variant-numeric:tabular-nums; font-weight:500; color:#2c3e50; }
+  .pvq-overall { font-size:0.9rem; color:#333; margin-top:1rem; padding-top:0.8rem; border-top:1px dashed #cbd5e0; }
+  .pvq-overall .rate { font-variant-numeric:tabular-nums; font-weight:600; color:#2c3e50; font-size:1rem; }
+  .pvq-overall .meta { color:#666; font-size:0.78rem; }
+  .pvq-overall em { font-style:italic; color:#666; }
   .pvq-legend { color:#666; font-size:0.8rem; margin-top:0.4rem; }
   .pvq-legend .swatch { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:baseline; margin-right:3px; }
 </style>
@@ -98,23 +97,6 @@
         var fillPct= Math.min(100, Math.round((ed.completed / denom) * 100));
         var minPct = Math.min(100, Math.round((ed.min / denom) * 100));
         var fillColour = colourFor(ed);
-        var f = ed.field || {};
-        var ratesLine = '';
-        if (f.attempts > 0) {
-          ratesLine =
-            '<div class="pvq-ed-rates">' +
-              '<span class="rate">' + f.attempts + ' attempts</span>' +
-              '<span class="sep">&middot;</span>' +
-              '<span class="rate">refusal ' + pct(f.refused, f.attempts) + '</span>' +
-              '<span class="sep">&middot;</span>' +
-              '<span class="rate">no-answer ' + pct(f.no_answer, f.attempts) + '</span>' +
-              (f.flyer ?   '<span class="sep">&middot;</span><span class="rate">flyer ' + f.flyer + '</span>'         : '') +
-              (f.not_res ? '<span class="sep">&middot;</span><span class="rate">not-res ' + f.not_res + '</span>'     : '') +
-              (f.revisit ? '<span class="sep">&middot;</span><span class="rate">revisit ' + f.revisit + '</span>'     : '') +
-            '</div>';
-        } else {
-          ratesLine = '<div class="pvq-ed-rates"><em>no field attempts yet</em></div>';
-        }
         var div = document.createElement('div');
         div.className = 'pvq-ed';
         div.innerHTML =
@@ -123,18 +105,23 @@
             '<div class="marker" style="left:' + minPct + '%"></div>' +
             '<div class="pvq-ed-fill" style="width:' + fillPct + '%; background:' + fillColour + ';"></div>' +
           '</div>' +
-          '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>' +
-          ratesLine;
+          '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>';
         container.appendChild(div);
       });
-      if (s.overall && s.overall.field_attempts > 0) {
+      if (s.overall && (s.overall.answered_combined > 0 || s.overall.eligible_combined > 0)) {
+        var o = s.overall;
         var ov = document.createElement('div');
         ov.className = 'pvq-overall';
         ov.innerHTML =
-          'Across all field attempts (' + s.overall.field_attempts + '): ' +
-          '<span class="rate">refusal ' + Math.round(100*s.overall.refusal_rate) + '%</span>' +
-          ' &middot; ' +
-          '<span class="rate">no-answer ' + Math.round(100*s.overall.no_answer_rate) + '%</span>';
+          '<div><strong>Refusal rate:</strong> <span class="rate">' +
+            Math.round(100*o.refusal_rate) + '%</span> ' +
+            '<span class="meta">(' + o.refused_combined + ' refused / ' + o.answered_combined + ' answered)</span></div>' +
+          '<div><strong>No-answer rate:</strong> <span class="rate">' +
+            Math.round(100*o.no_answer_rate) + '%</span> ' +
+            '<span class="meta">(' + o.no_answer_combined + ' / ' + o.eligible_combined + ' eligible attempts)</span></div>' +
+          '<div class="meta" style="margin-top:0.3rem">Combined current campaign (' + o.field_attempts_current +
+            ' attempts) + 2025 pilot (' + o.field_attempts_pilot + ' attempts). ' +
+            '<em>Answered = completed + flyer + refused. Eligible = attempts excluding vacant &amp; not-residential.</em></div>';
         container.appendChild(ov);
       }
     })
