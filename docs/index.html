@@ -48,9 +48,9 @@
   <div class="pvq-progress-total" id="pvq-progress-total">Loading…</div>
   <div class="pvq-eds" id="pvq-eds"></div>
   <div class="pvq-legend">
-    <span class="swatch" style="background:linear-gradient(to right,hsl(0,80%,50%),hsl(60,80%,50%))"></span> below minimum (warms as it approaches) &nbsp;
-    <span class="swatch" style="background:#27ae60"></span> minimum reached &nbsp;
-    <span class="swatch" style="background:#9333ea"></span> desirable reached &nbsp;
+    <span class="swatch" style="background:linear-gradient(to right,hsl(0,80%,50%),hsl(60,80%,50%))"></span> below minimum (red&rarr;yellow) &nbsp;
+    <span class="swatch" style="background:linear-gradient(to right,hsl(120,70%,45%),hsl(200,70%,45%),hsl(280,70%,45%))"></span> minimum&rarr;desirable (green&rarr;blue&rarr;purple) &nbsp;
+    <span class="swatch" style="background:hsl(280,70%,45%)"></span> desirable reached &nbsp;
     | tick marks the minimum on each bar
   </div>
 </div>
@@ -78,11 +78,19 @@
         return Math.round(100 * num / denom) + '%';
       }
       function colourFor(ed) {
-        if (ed.completed >= ed.desirable) return '#9333ea';                          // purple
-        if (ed.completed >= ed.min)       return '#27ae60';                          // green
-        // Below min: gradient red (0%) → yellow (at min). Saturated, so it's clearly "warming up".
+        // Three regimes on a continuous color wheel:
+        //  below min:        hsl 0  →  60  (red → yellow)
+        //  min → desirable:  hsl 120 → 280 (green → teal → blue → purple, going the long way around)
+        //  at/beyond desir.: hsl 280 (solid purple)
+        if (ed.completed >= ed.desirable) return 'hsl(280, 70%, 45%)';
+        if (ed.completed >= ed.min) {
+          var span = Math.max(1, ed.desirable - ed.min);
+          var u    = Math.min(1, (ed.completed - ed.min) / span);  // 0 at min, 1 at desirable
+          var hue  = 120 + Math.round(160 * u);                    // 120 → 280
+          return 'hsl(' + hue + ', 70%, 45%)';
+        }
         var t = ed.min > 0 ? Math.min(1, ed.completed / ed.min) : 0;
-        var hue = Math.round(60 * t);
+        var hue = Math.round(60 * t);                              // 0 → 60
         return 'hsl(' + hue + ', 80%, 50%)';
       }
       s.eds.forEach(function(ed){
