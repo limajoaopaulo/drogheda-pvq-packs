@@ -117,7 +117,7 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 11:16 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-15 12:22 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
@@ -250,14 +250,26 @@ function renderStops(){
       outsDiv.appendChild(b);
     });
 
-    // Notes textarea — per-house freetext, persisted in localStorage,
-    // synced to the Sheet on blur (and on outcome change).
+    // Notes textarea — per-house freetext, persisted in localStorage.
+    // The value can live in two places:
+    //   (a) state[sample_id].notes — if an outcome has been tapped for this house
+    //   (b) the pendingNotes stash  — if not yet tapped (note typed standalone)
+    // Read from both so the textarea always shows what the user typed last.
+    let prefillNote = "";
+    if (state[s.sample_id] && state[s.sample_id].notes) {
+      prefillNote = state[s.sample_id].notes;
+    } else {
+      try {
+        const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+        prefillNote = stash[s.sample_id] || "";
+      } catch(_) {}
+    }
     const notesEl = document.createElement("textarea");
-    notesEl.className = "stop-notes";
+    notesEl.className = "stop-notes" + (prefillNote && (!state[s.sample_id] || !state[s.sample_id].synced) ? " dirty" : "");
     notesEl.dataset.sid = s.sample_id;
     notesEl.rows = 2;
     notesEl.placeholder = "Notes about this house (optional)";
-    notesEl.value = (state[s.sample_id] && state[s.sample_id].notes) || "";
+    notesEl.value = prefillNote;
 
     li.appendChild(h3);
     li.appendChild(sub);
@@ -351,11 +363,23 @@ async function syncEntry(sample_id){
       e.synced = true;
       saveState(state);
       renderSyncPill();
-      renderStops();
+      markSyncedDOM(sample_id);   // targeted update — does NOT rebuild textareas
     }
   } catch(err) {
     // Stay unsynced; will retry on next trigger.
   }
+}
+
+// Surgical DOM update for a single stop after its outcome has synced.
+// Removes the orange "unsynced" dot and amber border on the notes box,
+// without rebuilding the textarea (which would interrupt anyone mid-typing).
+function markSyncedDOM(sid){
+  const li = document.getElementById("stop-" + sid);
+  if (!li) return;
+  const dot = li.querySelector(".outcomes button.active .unsynced-dot");
+  if (dot) dot.remove();
+  const note = li.querySelector(".stop-notes");
+  if (note) note.classList.remove("dirty");
 }
 function flushUnsynced(){
   Object.keys(state).forEach(syncEntry);
