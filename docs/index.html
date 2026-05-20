@@ -3,6 +3,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Drogheda PVQ field packs</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
          max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #222; line-height: 1.45; }
@@ -14,9 +18,59 @@
   a:hover { text-decoration: underline; }
   .meta { color: #666; font-size: 0.85rem; }
   code { background: #f4f4f4; padding: 0.05rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+  #overview-map { height: 60vh; max-height: 520px; width: 100%; margin: 1em 0;
+                  border: 1px solid #ddd; border-radius: 6px; }
+  .ed-tooltip { font-weight: 600; font-size: 0.9rem; }
 </style>
 <h1>Drogheda PVQ field packs</h1>
 <p class="meta">Open the pack for your assigned ED and enumerator slot on your phone.</p>
+<div id="overview-map"></div>
+<p class="meta" style="margin-top:-0.6rem">Tap an ED to jump to its pack list. Dots show primary-frame addresses (reserves hidden).</p>
+<script src="data/homepage_eds.js"></script>
+<script src="data/homepage_stops.js"></script>
+<script>
+(function(){
+  var el = document.getElementById('overview-map');
+  if (!el || typeof L === 'undefined' || typeof HOMEPAGE_EDS === 'undefined') return;
+  var palette = {
+    cloghe:'#1f77b4', fairga:'#ff7f0e', monast:'#2ca02c', stlawr:'#d62728',
+    stmary:'#9467bd', stpete:'#8c564b', termon:'#e377c2', westga:'#17becf'
+  };
+  var map = L.map(el, { scrollWheelZoom: false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+  var edLayer = L.geoJSON(HOMEPAGE_EDS, {
+    style: function(f){
+      var c = palette[f.properties.slug] || '#666';
+      return { color: c, weight: 2, fillColor: c, fillOpacity: 0.18 };
+    },
+    onEachFeature: function(f, layer){
+      var nm = f.properties.ed_name, sl = f.properties.slug;
+      layer.bindTooltip(nm, { className: 'ed-tooltip', sticky: true });
+      layer.on('click', function(){
+        var target = document.getElementById('ed-' + sl);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      layer.on('mouseover', function(){ layer.setStyle({ fillOpacity: 0.35 }); });
+      layer.on('mouseout',  function(){ layer.setStyle({ fillOpacity: 0.18 }); });
+    }
+  }).addTo(map);
+  var stopLayer = L.layerGroup();
+  if (typeof HOMEPAGE_STOPS !== 'undefined') {
+    HOMEPAGE_STOPS.forEach(function(s){
+      L.circleMarker([s.lat, s.lon], {
+        radius: 3, color: palette[s.slug] || '#333',
+        fillColor: palette[s.slug] || '#333', fillOpacity: 0.85, weight: 0.5
+      }).addTo(stopLayer);
+    });
+  }
+  stopLayer.addTo(map);
+  L.control.layers(null, { 'Primary stops': stopLayer }, { collapsed: false }).addTo(map);
+  map.fitBounds(edLayer.getBounds(), { padding: [10, 10] });
+})();
+</script>
 <p class="meta">Last published: 2026-05-20</p>
 <style>
   .pvq-progress { background:#f7f7f9; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px; margin:1.2rem 0; }
@@ -130,13 +184,13 @@
     });
 })();
 </script>
-<h2>Clogher</h2>
+<h2 id="ed-cloghe">Clogher</h2>
 <ul>
   <li><a href="packs/CLOGHE-D01__20260520.html"><code>CLOGHE-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/CLOGHE-D02__20260520.html"><code>CLOGHE-D02</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/CLOGHE-D03__20260520.html"><code>CLOGHE-D03</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>Fair Gate</h2>
+<h2 id="ed-fairga">Fair Gate</h2>
 <ul>
   <li><a href="packs/FAIRGA-D01__20260520.html"><code>FAIRGA-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/FAIRGA-D02__20260520.html"><code>FAIRGA-D02</code></a> <span class="meta">20260520</span></li>
@@ -145,24 +199,24 @@
   <li><a href="packs/FAIRGA-D05__20260520.html"><code>FAIRGA-D05</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/FAIRGA-D06__20260520.html"><code>FAIRGA-D06</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>Monasterboice</h2>
+<h2 id="ed-monast">Monasterboice</h2>
 <ul>
   <li><a href="packs/MONAST-D01__20260520.html"><code>MONAST-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/MONAST-D02__20260520.html"><code>MONAST-D02</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>St. Lawrence Gate</h2>
+<h2 id="ed-stlawr">St. Lawrence Gate</h2>
 <ul>
   <li><a href="packs/StLAWR-D01__20260520.html"><code>StLAWR-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/StLAWR-D02__20260520.html"><code>StLAWR-D02</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>St. Mary's (Part)</h2>
+<h2 id="ed-stmary">St. Mary's (Part)</h2>
 <ul>
   <li><a href="packs/StMARY-D01__20260520.html"><code>StMARY-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/StMARY-D02__20260520.html"><code>StMARY-D02</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/StMARY-D03__20260520.html"><code>StMARY-D03</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/StMARY-D04__20260520.html"><code>StMARY-D04</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>St. Peter's</h2>
+<h2 id="ed-stpete">St. Peter's</h2>
 <ul>
   <li><a href="packs/StPETE-D01__20260520.html"><code>StPETE-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/StPETE-D02__20260520.html"><code>StPETE-D02</code></a> <span class="meta">20260520</span></li>
@@ -171,12 +225,12 @@
   <li><a href="packs/StPETE-D05__20260520.html"><code>StPETE-D05</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/StPETE-D06__20260520.html"><code>StPETE-D06</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>Termonfeckin</h2>
+<h2 id="ed-termon">Termonfeckin</h2>
 <ul>
   <li><a href="packs/TERMON-D01__20260520.html"><code>TERMON-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/TERMON-D02__20260520.html"><code>TERMON-D02</code></a> <span class="meta">20260520</span></li>
 </ul>
-<h2>West Gate</h2>
+<h2 id="ed-westga">West Gate</h2>
 <ul>
   <li><a href="packs/WESTGA-D01__20260520.html"><code>WESTGA-D01</code></a> <span class="meta">20260520</span></li>
   <li><a href="packs/WESTGA-D02__20260520.html"><code>WESTGA-D02</code></a> <span class="meta">20260520</span></li>
