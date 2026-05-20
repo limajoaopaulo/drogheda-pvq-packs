@@ -132,15 +132,15 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-19 15:40 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-19 16:26 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "MONAST-D02";
 const PACK_DATE       = "2026-05-19";
-const STOPS           = [{"sample_id":"DRG-8-1738","order":1,"address":"Keerhan lane","eircode":"","lat":53.731,"lon":-6.4735,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-1739","order":2,"address":"Keerhan lane","eircode":"","lat":53.7311,"lon":-6.4737,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-1740","order":3,"address":"Keerhan lane","eircode":"","lat":53.7322,"lon":-6.4755,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-1741","order":4,"address":"Keerhan lane","eircode":"","lat":53.7321,"lon":-6.4753,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-1742","order":5,"address":"Keerhan lane","eircode":"","lat":53.7341,"lon":-6.4784,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const RESERVES        = [{"sample_id":"DRG-8-1753","order":1,"address":"Keerhan lane","eircode":"","lat":53.7302,"lon":-6.4786,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-1754","order":2,"address":"Keerhan lane","eircode":"","lat":53.7312,"lon":-6.4798,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const STOPS           = [{"sample_id":"DRG-8-3414","order":1,"address":"Kiernan's Cross","eircode":"","lat":53.7768,"lon":-6.3998,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-3415","order":2,"address":"Kiernan's Cross","eircode":"","lat":53.7769,"lon":-6.4036,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-3416","order":3,"address":"Kiernan's Cross","eircode":"","lat":53.7775,"lon":-6.4031,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-3417","order":4,"address":"Kiernan's Cross","eircode":"","lat":53.778,"lon":-6.4027,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-3418","order":5,"address":"Kiernan's Cross","eircode":"","lat":53.7781,"lon":-6.4007,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-8-3429","order":1,"address":"Kiernan's Cross","eircode":"","lat":53.7822,"lon":-6.3973,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-3430","order":2,"address":"Kiernan's Cross","eircode":"","lat":53.7817,"lon":-6.3998,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -591,7 +591,7 @@ renderSyncPill();
 flushUnsynced();
 pingOpen(false);
 
-const map = L.map("map").setView([53.732114, -6.4752754], 16);
+const map = L.map("map").setView([53.777462, -6.4019905], 16);
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap contributors"

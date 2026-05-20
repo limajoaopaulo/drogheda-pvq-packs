@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WEST GATE — WESTGA-D04</title>
+<title>TERMONFECKIN — TERMON-D02</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -103,8 +103,8 @@
 </head>
 <body>
 <header>
-  <h1>WEST GATE &middot; Pack WESTGA-D04</h1>
-  <div class="meta">Date: 2026-05-19 &middot; 4 stops &middot; No quota gate &mdash; offer link to everyone who answers</div>
+  <h1>TERMONFECKIN &middot; Pack TERMON-D02</h1>
+  <div class="meta">Date: 2026-05-20 &middot; 6 stops &middot; No quota gate &mdash; offer link to everyone who answers</div>
   <span class="sync-pill" id="sync-pill">…</span>
 </header>
 
@@ -132,15 +132,15 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-19 16:26 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 10:49 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
-const PACK_ID         = "WESTGA-D04";
-const PACK_DATE       = "2026-05-19";
-const STOPS           = [{"sample_id":"DRG-4-3190","order":1,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.3642,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-3191","order":2,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-3192","order":3,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-3193","order":4,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const RESERVES        = [{"sample_id":"DRG-4-3224","order":1,"address":"Ashfield","eircode":"","lat":53.7213,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-3225","order":2,"address":"Ashfield","eircode":"","lat":53.7214,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const PACK_ID         = "TERMON-D02";
+const PACK_DATE       = "2026-05-20";
+const STOPS           = [{"sample_id":"DRG-5-0667","order":1,"address":"Millrace","eircode":"","lat":53.7607,"lon":-6.2843,"ed_name":"TERMONFECKIN","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Wiza","closed_note":""},{"sample_id":"DRG-5-0669","order":2,"address":"Millrace","eircode":"","lat":53.7841,"lon":-6.3045,"ed_name":"TERMONFECKIN","cluster_id":2,"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Wiza","closed_note":""},{"sample_id":"DRG-5-0672","order":3,"address":"Millrace","eircode":"","lat":53.7772,"lon":-6.2954,"ed_name":"TERMONFECKIN","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Wiza","closed_note":""},{"sample_id":"DRG-5-0673","order":4,"address":"Millrace","eircode":"","lat":53.7767,"lon":-6.2887,"ed_name":"TERMONFECKIN","cluster_id":2,"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Wiza","closed_note":""},{"sample_id":"DRG-5-0675","order":5,"address":"Millrace","eircode":"","lat":53.7774,"lon":-6.2928,"ed_name":"TERMONFECKIN","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Wiza","closed_note":""},{"sample_id":"DRG-5-0678","order":6,"address":"Millrace","eircode":"","lat":53.7787,"lon":-6.2885,"ed_name":"TERMONFECKIN","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Wiza","closed_note":""}];
+const RESERVES        = [];
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -591,7 +591,7 @@ renderSyncPill();
 flushUnsynced();
 pingOpen(false);
 
-const map = L.map("map").setView([53.722536, -6.3639478], 16);
+const map = L.map("map").setView([53.775808, -6.2923686], 16);
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap contributors"
