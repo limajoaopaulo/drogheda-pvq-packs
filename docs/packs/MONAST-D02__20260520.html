@@ -98,6 +98,16 @@
     border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
   }
   .pin.reserve { background:#7f8c8d; width:16px; height:16px; font-size:9px; }
+  /* Labels drawn inside picked-building polygons. Transparent background so
+     the polygon fill colour shows through; bold white text for legibility. */
+  .leaflet-tooltip.poly-label {
+    background: transparent; border: none; box-shadow: none;
+    color: #fff; font-weight: 700; font-size: 11px;
+    text-shadow: 0 0 2px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.6);
+    padding: 0; pointer-events: none;
+  }
+  .leaflet-tooltip.poly-label::before { display: none; }
+  .leaflet-tooltip.poly-label.reserve { font-size: 9px; }
   .leaflet-control-layers-expanded { padding: 6px 10px; font-size: 13px; }
 </style>
 </head>
@@ -132,16 +142,16 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:49 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:59 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "MONAST-D02";
 const PACK_DATE       = "2026-05-20";
-const STOPS           = [{"sample_id":"DRG-8-8311","order":1,"address":"Kiernan's Cross","eircode":"","lat":53.7769,"lon":-6.4035,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8312","order":2,"address":"Kiernan's Cross","eircode":"","lat":53.7775,"lon":-6.4031,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8313","order":3,"address":"Kiernan's Cross","eircode":"","lat":53.778,"lon":-6.4027,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8314","order":4,"address":"Kiernan's Cross","eircode":"","lat":53.7781,"lon":-6.4008,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8310","order":5,"address":"Kiernan's Cross","eircode":"","lat":53.7768,"lon":-6.3998,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const RESERVES        = [{"sample_id":"DRG-8-8325","order":1,"address":"Kiernan's Cross","eircode":"","lat":53.7822,"lon":-6.3973,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8326","order":2,"address":"Kiernan's Cross","eircode":"","lat":53.7817,"lon":-6.3998,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const POLYGONS        = {"type": "FeatureCollection","name": "file1c99143b82ca","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/780622478" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3973159, 53.7822661 ], [ -6.3971822, 53.7822559 ], [ -6.3971989, 53.7821794 ], [ -6.3971756, 53.7821776 ], [ -6.3971891, 53.7821155 ], [ -6.397382, 53.7821301 ], [ -6.3973737, 53.7821681 ], [ -6.3973378, 53.7821654 ], [ -6.3973159, 53.7822661 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/780622483" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.399854, 53.7817589 ], [ -6.3996837, 53.7817542 ], [ -6.3996881, 53.7816991 ], [ -6.3998584, 53.7817038 ], [ -6.399854, 53.7817589 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868477412" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3998828, 53.7768267 ], [ -6.3999009, 53.7768267 ], [ -6.3999009, 53.7768616 ], [ -6.3998828, 53.7768616 ], [ -6.3998828, 53.7769044 ], [ -6.3997628, 53.7769044 ], [ -6.3997628, 53.7768445 ], [ -6.3996998, 53.7768445 ], [ -6.3996998, 53.7767918 ], [ -6.3997856, 53.7767918 ], [ -6.3997856, 53.7767871 ], [ -6.3998828, 53.7767871 ], [ -6.3998828, 53.7768267 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868477413" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4008215, 53.7780473 ], [ -6.4008379, 53.7780477 ], [ -6.4008376, 53.7780521 ], [ -6.4008752, 53.778053 ], [ -6.4008724, 53.7780946 ], [ -6.400837, 53.7780937 ], [ -6.4008361, 53.7781072 ], [ -6.4008214, 53.7781069 ], [ -6.4008203, 53.7781231 ], [ -6.4008076, 53.7781228 ], [ -6.4008068, 53.7781339 ], [ -6.4007076, 53.7781315 ], [ -6.4007052, 53.7781667 ], [ -6.4006118, 53.7781645 ], [ -6.4006154, 53.7781117 ], [ -6.4006032, 53.7781114 ], [ -6.400607, 53.7780556 ], [ -6.4006192, 53.7780559 ], [ -6.40062, 53.7780437 ], [ -6.4007135, 53.7780459 ], [ -6.4007145, 53.7780317 ], [ -6.4008224, 53.7780343 ], [ -6.4008215, 53.7780473 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868923723" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4034202, 53.7768005 ], [ -6.4035843, 53.7768013 ], [ -6.4035846, 53.7767785 ], [ -6.4036717, 53.7767789 ], [ -6.4036714, 53.7768032 ], [ -6.4037392, 53.7768035 ], [ -6.4037376, 53.7769235 ], [ -6.4036395, 53.7769231 ], [ -6.4036399, 53.7768954 ], [ -6.4035214, 53.7768948 ], [ -6.403521, 53.7769263 ], [ -6.4034186, 53.7769258 ], [ -6.4034202, 53.7768005 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868923732" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4031396, 53.7776353 ], [ -6.4032508, 53.7775167 ], [ -6.4032237, 53.7775078 ], [ -6.4032725, 53.7774557 ], [ -6.4031487, 53.7774152 ], [ -6.4029887, 53.7775859 ], [ -6.4031396, 53.7776353 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868923735" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4027092, 53.7780755 ], [ -6.402811, 53.7780011 ], [ -6.4028024, 53.777997 ], [ -6.4028308, 53.7779762 ], [ -6.4027079, 53.7779175 ], [ -6.4026338, 53.7779716 ], [ -6.4026235, 53.7779667 ], [ -6.4025672, 53.7780078 ], [ -6.4027092, 53.7780755 ] ] ] ] } }]};
+const STOPS           = [{"sample_id":"DRG-8-8311","building_id":"multipolygon/868923723","order":1,"address":"Kiernan's Cross","eircode":"","lat":53.7769,"lon":-6.4035,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8312","building_id":"multipolygon/868923732","order":2,"address":"Kiernan's Cross","eircode":"","lat":53.7775,"lon":-6.4031,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8313","building_id":"multipolygon/868923735","order":3,"address":"Kiernan's Cross","eircode":"","lat":53.778,"lon":-6.4027,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8314","building_id":"multipolygon/868477413","order":4,"address":"Kiernan's Cross","eircode":"","lat":53.7781,"lon":-6.4008,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8310","building_id":"multipolygon/868477412","order":5,"address":"Kiernan's Cross","eircode":"","lat":53.7768,"lon":-6.3998,"ed_name":"MONASTERBOICE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-8-8325","building_id":"multipolygon/780622478","order":1,"address":"Kiernan's Cross","eircode":"","lat":53.7822,"lon":-6.3973,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8326","building_id":"multipolygon/780622483","order":2,"address":"Kiernan's Cross","eircode":"","lat":53.7817,"lon":-6.3998,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const POLYGONS        = {"type": "FeatureCollection","name": "file46ed3d51ce0a","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/780622478", "label": "R1", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3973159, 53.7822661 ], [ -6.3971822, 53.7822559 ], [ -6.3971989, 53.7821794 ], [ -6.3971756, 53.7821776 ], [ -6.3971891, 53.7821155 ], [ -6.397382, 53.7821301 ], [ -6.3973737, 53.7821681 ], [ -6.3973378, 53.7821654 ], [ -6.3973159, 53.7822661 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/780622483", "label": "R2", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.399854, 53.7817589 ], [ -6.3996837, 53.7817542 ], [ -6.3996881, 53.7816991 ], [ -6.3998584, 53.7817038 ], [ -6.399854, 53.7817589 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868477412", "label": "5", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3998828, 53.7768267 ], [ -6.3999009, 53.7768267 ], [ -6.3999009, 53.7768616 ], [ -6.3998828, 53.7768616 ], [ -6.3998828, 53.7769044 ], [ -6.3997628, 53.7769044 ], [ -6.3997628, 53.7768445 ], [ -6.3996998, 53.7768445 ], [ -6.3996998, 53.7767918 ], [ -6.3997856, 53.7767918 ], [ -6.3997856, 53.7767871 ], [ -6.3998828, 53.7767871 ], [ -6.3998828, 53.7768267 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868477413", "label": "4", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4008215, 53.7780473 ], [ -6.4008379, 53.7780477 ], [ -6.4008376, 53.7780521 ], [ -6.4008752, 53.778053 ], [ -6.4008724, 53.7780946 ], [ -6.400837, 53.7780937 ], [ -6.4008361, 53.7781072 ], [ -6.4008214, 53.7781069 ], [ -6.4008203, 53.7781231 ], [ -6.4008076, 53.7781228 ], [ -6.4008068, 53.7781339 ], [ -6.4007076, 53.7781315 ], [ -6.4007052, 53.7781667 ], [ -6.4006118, 53.7781645 ], [ -6.4006154, 53.7781117 ], [ -6.4006032, 53.7781114 ], [ -6.400607, 53.7780556 ], [ -6.4006192, 53.7780559 ], [ -6.40062, 53.7780437 ], [ -6.4007135, 53.7780459 ], [ -6.4007145, 53.7780317 ], [ -6.4008224, 53.7780343 ], [ -6.4008215, 53.7780473 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868923723", "label": "1", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4034202, 53.7768005 ], [ -6.4035843, 53.7768013 ], [ -6.4035846, 53.7767785 ], [ -6.4036717, 53.7767789 ], [ -6.4036714, 53.7768032 ], [ -6.4037392, 53.7768035 ], [ -6.4037376, 53.7769235 ], [ -6.4036395, 53.7769231 ], [ -6.4036399, 53.7768954 ], [ -6.4035214, 53.7768948 ], [ -6.403521, 53.7769263 ], [ -6.4034186, 53.7769258 ], [ -6.4034202, 53.7768005 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868923732", "label": "2", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4031396, 53.7776353 ], [ -6.4032508, 53.7775167 ], [ -6.4032237, 53.7775078 ], [ -6.4032725, 53.7774557 ], [ -6.4031487, 53.7774152 ], [ -6.4029887, 53.7775859 ], [ -6.4031396, 53.7776353 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/868923735", "label": "3", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4027092, 53.7780755 ], [ -6.402811, 53.7780011 ], [ -6.4028024, 53.777997 ], [ -6.4028308, 53.7779762 ], [ -6.4027079, 53.7779175 ], [ -6.4026338, 53.7779716 ], [ -6.4026235, 53.7779667 ], [ -6.4025672, 53.7780078 ], [ -6.4027092, 53.7780755 ] ] ] ] } }]};
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -598,12 +608,32 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// Building-polygon outlines for each picked house: faint grey so the pin↔
-// polygon link is unambiguous without overpowering the tile basemap.
+// Picked buildings' polygons ARE the markers — filled red (primary) or grey
+// (reserve), with the stop number rendered as a tooltip in the polygon's
+// centre. Eliminates the pin-overlap problem on tight terraces because each
+// polygon is a distinct shape.
+const POLY_BIDS = new Set();
 if (POLYGONS && POLYGONS.features && POLYGONS.features.length > 0) {
   L.geoJSON(POLYGONS, {
-    style: { color: "#444", weight: 1.5, fillColor: "#888", fillOpacity: 0.15 },
-    interactive: false
+    style: function(f) {
+      const isReserve = f.properties.kind === "reserve";
+      return {
+        color: "#fff",
+        weight: 1.5,
+        fillColor: isReserve ? "#7f8c8d" : "#c0392b",
+        fillOpacity: 0.85
+      };
+    },
+    onEachFeature: function(f, layer) {
+      POLY_BIDS.add(f.properties.building_id);
+      const cls = "poly-label" + (f.properties.kind === "reserve" ? " reserve" : "");
+      layer.bindTooltip(String(f.properties.label), {
+        permanent: true,
+        direction: "center",
+        className: cls,
+        opacity: 1
+      });
+    }
   }).addTo(map);
 }
 
@@ -617,17 +647,34 @@ function pinIcon(label, reserve){
   });
 }
 
+function popupHtml(s){
+  return "<strong>" + s.order + ". " + s.address + "</strong><br>" +
+    (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
+    '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
+    '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>';
+}
+
 const bounds = [];
 STOPS.forEach(s => {
-  L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
-    .addTo(map)
-    .bindPopup(
-      "<strong>" + s.order + ". " + s.address + "</strong><br>" +
-      (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
-      '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
-      '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>'
-    );
+  // If this building has a polygon on the map, the polygon IS the marker —
+  // skip the pin circle (avoids overlapping pins on dense terraces). Bind
+  // the popup to the polygon instead, by stop building_id.
+  if (POLY_BIDS.has(s.building_id)) {
+    // Polygon already drawn; popup attached below via building_id lookup.
+  } else {
+    L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
+      .addTo(map)
+      .bindPopup(popupHtml(s));
+  }
   bounds.push([s.lat, s.lon]);
+});
+
+// Attach popups to polygons by matching building_id.
+map.eachLayer(function(layer){
+  if (!layer.feature || !layer.feature.properties) return;
+  const bid = layer.feature.properties.building_id;
+  const stop = STOPS.find(s => s.building_id === bid);
+  if (stop) layer.bindPopup(popupHtml(stop));
 });
 
 // Reserves live in their own layer so the user can toggle them on/off.
@@ -635,6 +682,7 @@ STOPS.forEach(s => {
 // to reveal grey backup pins on the same street.
 const reserveLayer = L.layerGroup();
 RESERVES.forEach((s,i) => {
+  if (POLY_BIDS.has(s.building_id)) return; // polygon already shown
   L.marker([s.lat, s.lon], { icon: pinIcon("R"+(i+1), true) })
     .bindPopup("<strong>R" + (i+1) + ". " + s.address + "</strong><br><em>reserve</em>")
     .addTo(reserveLayer);

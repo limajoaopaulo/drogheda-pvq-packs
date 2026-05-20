@@ -98,6 +98,16 @@
     border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
   }
   .pin.reserve { background:#7f8c8d; width:16px; height:16px; font-size:9px; }
+  /* Labels drawn inside picked-building polygons. Transparent background so
+     the polygon fill colour shows through; bold white text for legibility. */
+  .leaflet-tooltip.poly-label {
+    background: transparent; border: none; box-shadow: none;
+    color: #fff; font-weight: 700; font-size: 11px;
+    text-shadow: 0 0 2px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.6);
+    padding: 0; pointer-events: none;
+  }
+  .leaflet-tooltip.poly-label::before { display: none; }
+  .leaflet-tooltip.poly-label.reserve { font-size: 9px; }
   .leaflet-control-layers-expanded { padding: 6px 10px; font-size: 13px; }
 </style>
 </head>
@@ -132,16 +142,16 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:49 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:59 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "CLOGHE-D02";
 const PACK_DATE       = "2026-05-20";
-const STOPS           = [{"sample_id":"DRG-6-8190","order":1,"address":"Oriel Cove","eircode":"","lat":53.796,"lon":-6.2436,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8191","order":2,"address":"Oriel Cove","eircode":"","lat":53.796,"lon":-6.2435,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8189","order":3,"address":"Oriel Cove","eircode":"","lat":53.7957,"lon":-6.2431,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8188","order":4,"address":"Oriel Cove","eircode":"","lat":53.7957,"lon":-6.2433,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8187","order":5,"address":"Oriel Cove","eircode":"","lat":53.7956,"lon":-6.2434,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8186","order":6,"address":"Oriel Cove","eircode":"","lat":53.7955,"lon":-6.2435,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8185","order":7,"address":"Oriel Cove","eircode":"","lat":53.7954,"lon":-6.2436,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const RESERVES        = [{"sample_id":"DRG-6-8212","order":1,"address":"Oriel Cove","eircode":"","lat":53.7932,"lon":-6.2469,"ed_name":"CLOGHER","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8213","order":2,"address":"Oriel Cove","eircode":"","lat":53.7918,"lon":-6.2462,"ed_name":"CLOGHER","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8214","order":3,"address":"Oriel Cove","eircode":"","lat":53.7921,"lon":-6.2456,"ed_name":"CLOGHER","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const POLYGONS        = {"type": "FeatureCollection","name": "file1c994adda6a2","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/429910348" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2468548, 53.7931683 ], [ -6.24696, 53.7931767 ], [ -6.2469389, 53.7932693 ], [ -6.2468337, 53.793261 ], [ -6.2468548, 53.7931683 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/429910349" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2463141, 53.7917902 ], [ -6.2463169, 53.7918529 ], [ -6.2461587, 53.7918553 ], [ -6.2461559, 53.7917926 ], [ -6.2463141, 53.7917902 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/429910353" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2457123, 53.792117 ], [ -6.2457151, 53.7921727 ], [ -6.2455578, 53.7921754 ], [ -6.2455551, 53.7921197 ], [ -6.2457123, 53.792117 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277388" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2436717, 53.7955221 ], [ -6.2435027, 53.7954215 ], [ -6.2436018, 53.7953634 ], [ -6.2437708, 53.795464 ], [ -6.2436717, 53.7955221 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277389" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2435416, 53.7955894 ], [ -6.2433726, 53.7954888 ], [ -6.2434717, 53.7954308 ], [ -6.2436407, 53.7955314 ], [ -6.2435416, 53.7955894 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277390" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2434169, 53.7956631 ], [ -6.2432479, 53.7955625 ], [ -6.243347, 53.7955044 ], [ -6.243516, 53.795605 ], [ -6.2434169, 53.7956631 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277391" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2432922, 53.7957344 ], [ -6.2431232, 53.7956338 ], [ -6.2432223, 53.7955757 ], [ -6.2433912, 53.7956763 ], [ -6.2432922, 53.7957344 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277392" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2431727, 53.7958095 ], [ -6.2430038, 53.7957089 ], [ -6.2431028, 53.7956509 ], [ -6.2432718, 53.7957515 ], [ -6.2431727, 53.7958095 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277395" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2436128, 53.7960505 ], [ -6.2435323, 53.7960176 ], [ -6.2436152, 53.7959468 ], [ -6.2436956, 53.7959797 ], [ -6.2436128, 53.7960505 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277396" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2435323, 53.7960176 ], [ -6.2434518, 53.7959847 ], [ -6.2435347, 53.795914 ], [ -6.2436152, 53.7959468 ], [ -6.2435323, 53.7960176 ] ] ] ] } }]};
+const STOPS           = [{"sample_id":"DRG-6-8190","building_id":"multipolygon/796277395","order":1,"address":"Oriel Cove","eircode":"","lat":53.796,"lon":-6.2436,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8191","building_id":"multipolygon/796277396","order":2,"address":"Oriel Cove","eircode":"","lat":53.796,"lon":-6.2435,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8189","building_id":"multipolygon/796277392","order":3,"address":"Oriel Cove","eircode":"","lat":53.7957,"lon":-6.2431,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8188","building_id":"multipolygon/796277391","order":4,"address":"Oriel Cove","eircode":"","lat":53.7957,"lon":-6.2433,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8187","building_id":"multipolygon/796277390","order":5,"address":"Oriel Cove","eircode":"","lat":53.7956,"lon":-6.2434,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8186","building_id":"multipolygon/796277389","order":6,"address":"Oriel Cove","eircode":"","lat":53.7955,"lon":-6.2435,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8185","building_id":"multipolygon/796277388","order":7,"address":"Oriel Cove","eircode":"","lat":53.7954,"lon":-6.2436,"ed_name":"CLOGHER","cluster_id":3,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-6-8212","building_id":"multipolygon/429910348","order":1,"address":"Oriel Cove","eircode":"","lat":53.7932,"lon":-6.2469,"ed_name":"CLOGHER","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8213","building_id":"multipolygon/429910349","order":2,"address":"Oriel Cove","eircode":"","lat":53.7918,"lon":-6.2462,"ed_name":"CLOGHER","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-6-8214","building_id":"multipolygon/429910353","order":3,"address":"Oriel Cove","eircode":"","lat":53.7921,"lon":-6.2456,"ed_name":"CLOGHER","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const POLYGONS        = {"type": "FeatureCollection","name": "file46ed3c55a683","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/429910348", "label": "R1", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2468548, 53.7931683 ], [ -6.24696, 53.7931767 ], [ -6.2469389, 53.7932693 ], [ -6.2468337, 53.793261 ], [ -6.2468548, 53.7931683 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/429910349", "label": "R2", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2463141, 53.7917902 ], [ -6.2463169, 53.7918529 ], [ -6.2461587, 53.7918553 ], [ -6.2461559, 53.7917926 ], [ -6.2463141, 53.7917902 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/429910353", "label": "R3", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2457123, 53.792117 ], [ -6.2457151, 53.7921727 ], [ -6.2455578, 53.7921754 ], [ -6.2455551, 53.7921197 ], [ -6.2457123, 53.792117 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277388", "label": "7", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2436717, 53.7955221 ], [ -6.2435027, 53.7954215 ], [ -6.2436018, 53.7953634 ], [ -6.2437708, 53.795464 ], [ -6.2436717, 53.7955221 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277389", "label": "6", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2435416, 53.7955894 ], [ -6.2433726, 53.7954888 ], [ -6.2434717, 53.7954308 ], [ -6.2436407, 53.7955314 ], [ -6.2435416, 53.7955894 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277390", "label": "5", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2434169, 53.7956631 ], [ -6.2432479, 53.7955625 ], [ -6.243347, 53.7955044 ], [ -6.243516, 53.795605 ], [ -6.2434169, 53.7956631 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277391", "label": "4", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2432922, 53.7957344 ], [ -6.2431232, 53.7956338 ], [ -6.2432223, 53.7955757 ], [ -6.2433912, 53.7956763 ], [ -6.2432922, 53.7957344 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277392", "label": "3", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2431727, 53.7958095 ], [ -6.2430038, 53.7957089 ], [ -6.2431028, 53.7956509 ], [ -6.2432718, 53.7957515 ], [ -6.2431727, 53.7958095 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277395", "label": "1", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2436128, 53.7960505 ], [ -6.2435323, 53.7960176 ], [ -6.2436152, 53.7959468 ], [ -6.2436956, 53.7959797 ], [ -6.2436128, 53.7960505 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796277396", "label": "2", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.2435323, 53.7960176 ], [ -6.2434518, 53.7959847 ], [ -6.2435347, 53.795914 ], [ -6.2436152, 53.7959468 ], [ -6.2435323, 53.7960176 ] ] ] ] } }]};
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -598,12 +608,32 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// Building-polygon outlines for each picked house: faint grey so the pin↔
-// polygon link is unambiguous without overpowering the tile basemap.
+// Picked buildings' polygons ARE the markers — filled red (primary) or grey
+// (reserve), with the stop number rendered as a tooltip in the polygon's
+// centre. Eliminates the pin-overlap problem on tight terraces because each
+// polygon is a distinct shape.
+const POLY_BIDS = new Set();
 if (POLYGONS && POLYGONS.features && POLYGONS.features.length > 0) {
   L.geoJSON(POLYGONS, {
-    style: { color: "#444", weight: 1.5, fillColor: "#888", fillOpacity: 0.15 },
-    interactive: false
+    style: function(f) {
+      const isReserve = f.properties.kind === "reserve";
+      return {
+        color: "#fff",
+        weight: 1.5,
+        fillColor: isReserve ? "#7f8c8d" : "#c0392b",
+        fillOpacity: 0.85
+      };
+    },
+    onEachFeature: function(f, layer) {
+      POLY_BIDS.add(f.properties.building_id);
+      const cls = "poly-label" + (f.properties.kind === "reserve" ? " reserve" : "");
+      layer.bindTooltip(String(f.properties.label), {
+        permanent: true,
+        direction: "center",
+        className: cls,
+        opacity: 1
+      });
+    }
   }).addTo(map);
 }
 
@@ -617,17 +647,34 @@ function pinIcon(label, reserve){
   });
 }
 
+function popupHtml(s){
+  return "<strong>" + s.order + ". " + s.address + "</strong><br>" +
+    (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
+    '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
+    '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>';
+}
+
 const bounds = [];
 STOPS.forEach(s => {
-  L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
-    .addTo(map)
-    .bindPopup(
-      "<strong>" + s.order + ". " + s.address + "</strong><br>" +
-      (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
-      '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
-      '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>'
-    );
+  // If this building has a polygon on the map, the polygon IS the marker —
+  // skip the pin circle (avoids overlapping pins on dense terraces). Bind
+  // the popup to the polygon instead, by stop building_id.
+  if (POLY_BIDS.has(s.building_id)) {
+    // Polygon already drawn; popup attached below via building_id lookup.
+  } else {
+    L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
+      .addTo(map)
+      .bindPopup(popupHtml(s));
+  }
   bounds.push([s.lat, s.lon]);
+});
+
+// Attach popups to polygons by matching building_id.
+map.eachLayer(function(layer){
+  if (!layer.feature || !layer.feature.properties) return;
+  const bid = layer.feature.properties.building_id;
+  const stop = STOPS.find(s => s.building_id === bid);
+  if (stop) layer.bindPopup(popupHtml(stop));
 });
 
 // Reserves live in their own layer so the user can toggle them on/off.
@@ -635,6 +682,7 @@ STOPS.forEach(s => {
 // to reveal grey backup pins on the same street.
 const reserveLayer = L.layerGroup();
 RESERVES.forEach((s,i) => {
+  if (POLY_BIDS.has(s.building_id)) return; // polygon already shown
   L.marker([s.lat, s.lon], { icon: pinIcon("R"+(i+1), true) })
     .bindPopup("<strong>R" + (i+1) + ". " + s.address + "</strong><br><em>reserve</em>")
     .addTo(reserveLayer);

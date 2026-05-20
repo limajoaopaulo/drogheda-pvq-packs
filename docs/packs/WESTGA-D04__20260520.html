@@ -98,6 +98,16 @@
     border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
   }
   .pin.reserve { background:#7f8c8d; width:16px; height:16px; font-size:9px; }
+  /* Labels drawn inside picked-building polygons. Transparent background so
+     the polygon fill colour shows through; bold white text for legibility. */
+  .leaflet-tooltip.poly-label {
+    background: transparent; border: none; box-shadow: none;
+    color: #fff; font-weight: 700; font-size: 11px;
+    text-shadow: 0 0 2px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.6);
+    padding: 0; pointer-events: none;
+  }
+  .leaflet-tooltip.poly-label::before { display: none; }
+  .leaflet-tooltip.poly-label.reserve { font-size: 9px; }
   .leaflet-control-layers-expanded { padding: 6px 10px; font-size: 13px; }
 </style>
 </head>
@@ -132,16 +142,16 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:49 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:59 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "WESTGA-D04";
 const PACK_DATE       = "2026-05-20";
-const STOPS           = [{"sample_id":"DRG-4-8086","order":1,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8087","order":2,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8088","order":3,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8089","order":4,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3636,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const RESERVES        = [{"sample_id":"DRG-4-8120","order":1,"address":"Ashfield","eircode":"","lat":53.7213,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8121","order":2,"address":"Ashfield","eircode":"","lat":53.7214,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const POLYGONS        = {"type": "FeatureCollection","name": "file1c993328d8dc","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/877285185" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3639757, 53.7225712 ], [ -6.3638815, 53.7225945 ], [ -6.3638694, 53.7225773 ], [ -6.3638156, 53.7225906 ], [ -6.3637721, 53.722529 ], [ -6.3639201, 53.7224924 ], [ -6.3639757, 53.7225712 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877285186" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3641122, 53.7225515 ], [ -6.3640616, 53.722564 ], [ -6.3640531, 53.722552 ], [ -6.3639757, 53.7225712 ], [ -6.3639201, 53.7224924 ], [ -6.3640481, 53.7224607 ], [ -6.3641122, 53.7225515 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286286" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3637025, 53.7226852 ], [ -6.3636807, 53.7226905 ], [ -6.363655, 53.7226528 ], [ -6.3635787, 53.722671 ], [ -6.3635707, 53.7226592 ], [ -6.3635229, 53.7226707 ], [ -6.3634742, 53.7225994 ], [ -6.3636202, 53.7225645 ], [ -6.3637025, 53.7226852 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286287" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3638064, 53.722625 ], [ -6.3637325, 53.7226427 ], [ -6.3637533, 53.7226731 ], [ -6.3637025, 53.7226852 ], [ -6.3636202, 53.7225645 ], [ -6.3637449, 53.7225347 ], [ -6.3638064, 53.722625 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286295" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.361823, 53.7213444 ], [ -6.3618109, 53.7212571 ], [ -6.3619635, 53.7212497 ], [ -6.3619717, 53.7213091 ], [ -6.3619341, 53.7213109 ], [ -6.361938, 53.7213388 ], [ -6.361823, 53.7213444 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286296" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3618404, 53.7214438 ], [ -6.3618283, 53.7213566 ], [ -6.3619809, 53.7213492 ], [ -6.3619891, 53.7214086 ], [ -6.3619515, 53.7214104 ], [ -6.3619554, 53.7214383 ], [ -6.3618404, 53.7214438 ] ] ] ] } }]};
+const STOPS           = [{"sample_id":"DRG-4-8086","building_id":"multipolygon/877285186","order":1,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8087","building_id":"multipolygon/877285185","order":2,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8088","building_id":"multipolygon/877286287","order":3,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8089","building_id":"multipolygon/877286286","order":4,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3636,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-4-8120","building_id":"multipolygon/877286295","order":1,"address":"Ashfield","eircode":"","lat":53.7213,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8121","building_id":"multipolygon/877286296","order":2,"address":"Ashfield","eircode":"","lat":53.7214,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const POLYGONS        = {"type": "FeatureCollection","name": "file46ed2a1010e3","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/877285185", "label": "2", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3639757, 53.7225712 ], [ -6.3638815, 53.7225945 ], [ -6.3638694, 53.7225773 ], [ -6.3638156, 53.7225906 ], [ -6.3637721, 53.722529 ], [ -6.3639201, 53.7224924 ], [ -6.3639757, 53.7225712 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877285186", "label": "1", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3641122, 53.7225515 ], [ -6.3640616, 53.722564 ], [ -6.3640531, 53.722552 ], [ -6.3639757, 53.7225712 ], [ -6.3639201, 53.7224924 ], [ -6.3640481, 53.7224607 ], [ -6.3641122, 53.7225515 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286286", "label": "4", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3637025, 53.7226852 ], [ -6.3636807, 53.7226905 ], [ -6.363655, 53.7226528 ], [ -6.3635787, 53.722671 ], [ -6.3635707, 53.7226592 ], [ -6.3635229, 53.7226707 ], [ -6.3634742, 53.7225994 ], [ -6.3636202, 53.7225645 ], [ -6.3637025, 53.7226852 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286287", "label": "3", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3638064, 53.722625 ], [ -6.3637325, 53.7226427 ], [ -6.3637533, 53.7226731 ], [ -6.3637025, 53.7226852 ], [ -6.3636202, 53.7225645 ], [ -6.3637449, 53.7225347 ], [ -6.3638064, 53.722625 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286295", "label": "R1", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.361823, 53.7213444 ], [ -6.3618109, 53.7212571 ], [ -6.3619635, 53.7212497 ], [ -6.3619717, 53.7213091 ], [ -6.3619341, 53.7213109 ], [ -6.361938, 53.7213388 ], [ -6.361823, 53.7213444 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286296", "label": "R2", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3618404, 53.7214438 ], [ -6.3618283, 53.7213566 ], [ -6.3619809, 53.7213492 ], [ -6.3619891, 53.7214086 ], [ -6.3619515, 53.7214104 ], [ -6.3619554, 53.7214383 ], [ -6.3618404, 53.7214438 ] ] ] ] } }]};
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -598,12 +608,32 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// Building-polygon outlines for each picked house: faint grey so the pin↔
-// polygon link is unambiguous without overpowering the tile basemap.
+// Picked buildings' polygons ARE the markers — filled red (primary) or grey
+// (reserve), with the stop number rendered as a tooltip in the polygon's
+// centre. Eliminates the pin-overlap problem on tight terraces because each
+// polygon is a distinct shape.
+const POLY_BIDS = new Set();
 if (POLYGONS && POLYGONS.features && POLYGONS.features.length > 0) {
   L.geoJSON(POLYGONS, {
-    style: { color: "#444", weight: 1.5, fillColor: "#888", fillOpacity: 0.15 },
-    interactive: false
+    style: function(f) {
+      const isReserve = f.properties.kind === "reserve";
+      return {
+        color: "#fff",
+        weight: 1.5,
+        fillColor: isReserve ? "#7f8c8d" : "#c0392b",
+        fillOpacity: 0.85
+      };
+    },
+    onEachFeature: function(f, layer) {
+      POLY_BIDS.add(f.properties.building_id);
+      const cls = "poly-label" + (f.properties.kind === "reserve" ? " reserve" : "");
+      layer.bindTooltip(String(f.properties.label), {
+        permanent: true,
+        direction: "center",
+        className: cls,
+        opacity: 1
+      });
+    }
   }).addTo(map);
 }
 
@@ -617,17 +647,34 @@ function pinIcon(label, reserve){
   });
 }
 
+function popupHtml(s){
+  return "<strong>" + s.order + ". " + s.address + "</strong><br>" +
+    (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
+    '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
+    '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>';
+}
+
 const bounds = [];
 STOPS.forEach(s => {
-  L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
-    .addTo(map)
-    .bindPopup(
-      "<strong>" + s.order + ". " + s.address + "</strong><br>" +
-      (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
-      '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
-      '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>'
-    );
+  // If this building has a polygon on the map, the polygon IS the marker —
+  // skip the pin circle (avoids overlapping pins on dense terraces). Bind
+  // the popup to the polygon instead, by stop building_id.
+  if (POLY_BIDS.has(s.building_id)) {
+    // Polygon already drawn; popup attached below via building_id lookup.
+  } else {
+    L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
+      .addTo(map)
+      .bindPopup(popupHtml(s));
+  }
   bounds.push([s.lat, s.lon]);
+});
+
+// Attach popups to polygons by matching building_id.
+map.eachLayer(function(layer){
+  if (!layer.feature || !layer.feature.properties) return;
+  const bid = layer.feature.properties.building_id;
+  const stop = STOPS.find(s => s.building_id === bid);
+  if (stop) layer.bindPopup(popupHtml(stop));
 });
 
 // Reserves live in their own layer so the user can toggle them on/off.
@@ -635,6 +682,7 @@ STOPS.forEach(s => {
 // to reveal grey backup pins on the same street.
 const reserveLayer = L.layerGroup();
 RESERVES.forEach((s,i) => {
+  if (POLY_BIDS.has(s.building_id)) return; // polygon already shown
   L.marker([s.lat, s.lon], { icon: pinIcon("R"+(i+1), true) })
     .bindPopup("<strong>R" + (i+1) + ". " + s.address + "</strong><br><em>reserve</em>")
     .addTo(reserveLayer);
