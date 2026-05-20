@@ -93,11 +93,11 @@
   details.reserves summary { font-weight:600; padding: 6px 0; }
   footer { padding: 14px; text-align:center; color:#888; font-size:11px; }
   .pin {
-    background:#c0392b; color:#fff; border-radius:50%; width:28px; height:28px;
-    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;
+    background:#c0392b; color:#fff; border-radius:50%; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;
     border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
   }
-  .pin.reserve { background:#7f8c8d; width:20px; height:20px; font-size:10px; }
+  .pin.reserve { background:#7f8c8d; width:16px; height:16px; font-size:9px; }
   .leaflet-control-layers-expanded { padding: 6px 10px; font-size: 13px; }
 </style>
 </head>
@@ -132,16 +132,16 @@
 </details>
 
 <footer>
-  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:36 &middot;
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-20 11:49 &middot;
   Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
 </footer>
 
 <script>
 const PACK_ID         = "WESTGA-D04";
 const PACK_DATE       = "2026-05-20";
-const STOPS           = [{"sample_id":"DRG-4-7275","order":1,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.3642,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-7276","order":2,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-7277","order":3,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-7278","order":4,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const RESERVES        = [{"sample_id":"DRG-4-7309","order":1,"address":"Ashfield","eircode":"","lat":53.7213,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-7310","order":2,"address":"Ashfield","eircode":"","lat":53.7214,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
-const POLYGONS        = {"type": "FeatureCollection","name": "file17a975ce22e0f","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/877285185" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3639757, 53.7225712 ], [ -6.3638815, 53.7225945 ], [ -6.3638694, 53.7225773 ], [ -6.3638156, 53.7225906 ], [ -6.3637721, 53.722529 ], [ -6.3639201, 53.7224924 ], [ -6.3639757, 53.7225712 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877285186" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3641122, 53.7225515 ], [ -6.3640616, 53.722564 ], [ -6.3640531, 53.722552 ], [ -6.3639757, 53.7225712 ], [ -6.3639201, 53.7224924 ], [ -6.3640481, 53.7224607 ], [ -6.3641122, 53.7225515 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877285187" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.364286, 53.7224976 ], [ -6.3641412, 53.7225334 ], [ -6.3640847, 53.7224534 ], [ -6.3642294, 53.7224176 ], [ -6.364286, 53.7224976 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286287" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3638064, 53.722625 ], [ -6.3637325, 53.7226427 ], [ -6.3637533, 53.7226731 ], [ -6.3637025, 53.7226852 ], [ -6.3636202, 53.7225645 ], [ -6.3637449, 53.7225347 ], [ -6.3638064, 53.722625 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286295" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.361823, 53.7213444 ], [ -6.3618109, 53.7212571 ], [ -6.3619635, 53.7212497 ], [ -6.3619717, 53.7213091 ], [ -6.3619341, 53.7213109 ], [ -6.361938, 53.7213388 ], [ -6.361823, 53.7213444 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286296" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3618404, 53.7214438 ], [ -6.3618283, 53.7213566 ], [ -6.3619809, 53.7213492 ], [ -6.3619891, 53.7214086 ], [ -6.3619515, 53.7214104 ], [ -6.3619554, 53.7214383 ], [ -6.3618404, 53.7214438 ] ] ] ] } }]};
+const STOPS           = [{"sample_id":"DRG-4-8086","order":1,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.364,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8087","order":2,"address":"Ashfield","eircode":"","lat":53.7225,"lon":-6.3639,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8088","order":3,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3637,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8089","order":4,"address":"Ashfield","eircode":"","lat":53.7226,"lon":-6.3636,"ed_name":"WEST GATE","cluster_id":1,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-4-8120","order":1,"address":"Ashfield","eircode":"","lat":53.7213,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-4-8121","order":2,"address":"Ashfield","eircode":"","lat":53.7214,"lon":-6.3619,"ed_name":"WEST GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const POLYGONS        = {"type": "FeatureCollection","name": "file1c993328d8dc","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/877285185" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3639757, 53.7225712 ], [ -6.3638815, 53.7225945 ], [ -6.3638694, 53.7225773 ], [ -6.3638156, 53.7225906 ], [ -6.3637721, 53.722529 ], [ -6.3639201, 53.7224924 ], [ -6.3639757, 53.7225712 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877285186" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3641122, 53.7225515 ], [ -6.3640616, 53.722564 ], [ -6.3640531, 53.722552 ], [ -6.3639757, 53.7225712 ], [ -6.3639201, 53.7224924 ], [ -6.3640481, 53.7224607 ], [ -6.3641122, 53.7225515 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286286" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3637025, 53.7226852 ], [ -6.3636807, 53.7226905 ], [ -6.363655, 53.7226528 ], [ -6.3635787, 53.722671 ], [ -6.3635707, 53.7226592 ], [ -6.3635229, 53.7226707 ], [ -6.3634742, 53.7225994 ], [ -6.3636202, 53.7225645 ], [ -6.3637025, 53.7226852 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286287" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3638064, 53.722625 ], [ -6.3637325, 53.7226427 ], [ -6.3637533, 53.7226731 ], [ -6.3637025, 53.7226852 ], [ -6.3636202, 53.7225645 ], [ -6.3637449, 53.7225347 ], [ -6.3638064, 53.722625 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286295" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.361823, 53.7213444 ], [ -6.3618109, 53.7212571 ], [ -6.3619635, 53.7212497 ], [ -6.3619717, 53.7213091 ], [ -6.3619341, 53.7213109 ], [ -6.361938, 53.7213388 ], [ -6.361823, 53.7213444 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/877286296" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3618404, 53.7214438 ], [ -6.3618283, 53.7213566 ], [ -6.3619809, 53.7213492 ], [ -6.3619891, 53.7214086 ], [ -6.3619515, 53.7214104 ], [ -6.3619554, 53.7214383 ], [ -6.3618404, 53.7214438 ] ] ] ] } }]};
 const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
@@ -592,7 +592,7 @@ renderSyncPill();
 flushUnsynced();
 pingOpen(false);
 
-const map = L.map("map").setView([53.722536, -6.3639472], 16);
+const map = L.map("map").setView([53.722567, -6.3638074], 16);
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap contributors"
@@ -608,7 +608,7 @@ if (POLYGONS && POLYGONS.features && POLYGONS.features.length > 0) {
 }
 
 function pinIcon(label, reserve){
-  const sz = reserve ? 20 : 28;
+  const sz = reserve ? 16 : 22;
   return L.divIcon({
     className: "",
     iconSize: [sz, sz],
