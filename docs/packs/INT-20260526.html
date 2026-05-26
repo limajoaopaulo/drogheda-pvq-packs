@@ -50,26 +50,6 @@
   }
   .approach-btn:disabled { background:#bdc3c7; }
 
-  /* Eligibility modal (interviewer-facing) */
-  .modal-bg {
-    position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none;
-    align-items:center; justify-content:center; z-index:20; padding: 14px;
-  }
-  .modal-bg.open { display:flex; }
-  .modal {
-    background:#fff; border-radius:10px; width:100%; max-width:480px;
-    max-height: 90vh; overflow:auto; padding: 16px 18px;
-  }
-  .modal h2 { margin: 0 0 8px 0; font-size:16px; }
-  .modal .question { font-weight:600; margin: 10px 0 8px 0; }
-  .modal .row-buttons { display:flex; gap:8px; margin-top:12px; }
-  .modal .row-buttons button {
-    flex:1; padding: 11px; font-size:14px; border-radius:6px; border:1px solid #2c3e50;
-    background:#fff; color:#2c3e50; font-weight:600;
-  }
-  .modal .row-buttons button.danger { border-color:#c0392b; color:#c0392b; }
-  .modal .row-buttons button.primary { background:#27ae60; color:#fff; border-color:#27ae60; }
-
   /* Respondent-facing full-screen overlay */
   #resp-overlay {
     position:fixed; inset:0; background:#fff; z-index:30;
@@ -129,8 +109,8 @@
   li.intercept h3 { margin:2px 0 4px 0; font-size:15px; }
   li.intercept.done.completed { background:#eef9ee; }
   li.intercept.done.refused   { background:#fcefef; }
-  li.intercept.done.ineligible { background:#f0f0f0; opacity:0.85; }
-  li.intercept.done.walkedoff { background:#fff7e6; }
+  li.intercept.done.non-resident { background:#f0f0f0; opacity:0.85; }
+  li.intercept.done.flyergiven { background:#fff7e6; }
   li.intercept .outcomes { display:flex; flex-wrap:wrap; gap:6px; }
   li.intercept .outcomes button {
     padding: 8px 10px; font-size:13px; border-radius:6px;
@@ -139,8 +119,8 @@
   li.intercept .outcomes button.active { background:#2c3e50; color:#fff; border-color:#2c3e50; }
   li.intercept .outcomes button[data-out="Completed"].active { background:#27ae60; border-color:#27ae60; }
   li.intercept .outcomes button[data-out="Refused"].active   { background:#c0392b; border-color:#c0392b; }
-  li.intercept .outcomes button[data-out="Ineligible"].active { background:#7f8c8d; border-color:#7f8c8d; }
-  li.intercept .outcomes button[data-out="Walked off"].active { background:#e67e22; border-color:#e67e22; }
+  li.intercept .outcomes button[data-out="Non-resident"].active { background:#7f8c8d; border-color:#7f8c8d; }
+  li.intercept .outcomes button[data-out="Flyer given"].active { background:#e67e22; border-color:#e67e22; }
   li.intercept .outcomes button .unsynced-dot {
     position:absolute; top:2px; right:2px; width:6px; height:6px; border-radius:50%;
     background:#f39c12;
@@ -152,10 +132,15 @@
 
   /* Map polygon styling */
   .leaflet-interactive.ed-poly { cursor:pointer; }
-  .ed-tooltip-resp {
-    font-weight:700; font-size:13px; text-align:center;
-    background:rgba(255,255,255,0.92); border:none; box-shadow:0 1px 4px rgba(0,0,0,0.15);
-    padding:4px 8px; border-radius:4px;
+  #resp-legend {
+    padding: 8px 14px; background:#fff; display:flex; flex-wrap:wrap; gap:6px 14px;
+    justify-content:center; border-bottom:1px solid #eee;
+  }
+  #resp-legend .item {
+    display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  #resp-legend .swatch {
+    width:14px; height:14px; border-radius:3px; flex-shrink:0;
   }
 </style>
 </head>
@@ -189,31 +174,17 @@
 <ul id="intercepts" class="intercepts"></ul>
 
 <footer>
-  Drogheda PVQ intercept pack v2 &middot; generated 2026-05-26 12:46 &middot;
+  Drogheda PVQ intercept pack v2 &middot; generated 2026-05-26 12:50 &middot;
   Outcomes sync live to the Google Sheet as you tap.
 </footer>
-
-<!-- Eligibility modal (interviewer-facing, before handing phone over) -->
-<div class="modal-bg" id="modal-bg">
-  <div class="modal">
-    <h2 id="modal-id"></h2>
-    <div class="question">Do they live in Drogheda?</div>
-    <div class="row-buttons">
-      <button id="elig-yes" class="primary">Yes — hand them the phone</button>
-      <button id="elig-no" class="danger">No — mark Ineligible</button>
-    </div>
-    <div class="row-buttons" style="margin-top:14px;">
-      <button id="modal-cancel">Cancel</button>
-    </div>
-  </div>
-</div>
 
 <!-- Respondent-facing full-screen overlay -->
 <div id="resp-overlay">
   <header class="resp-head">
     <h2 id="resp-title">Where in Drogheda do you live?</h2>
-    <p id="resp-subtitle">Tap the area on the map.</p>
+    <p id="resp-subtitle">Tap your area on the map.</p>
   </header>
+  <div id="resp-legend"></div>
   <div id="resp-map"></div>
   <div id="resp-confirm">
     <div class="picked-ed" id="picked-ed-name"></div>
@@ -244,7 +215,7 @@ const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_
 const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
 const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
 const COORDINATOR_EMAIL = "joao@developmentperspectives.ie";
-const OUTCOMES = ["Completed", "Refused", "Ineligible", "Walked off"];
+const OUTCOMES = ["Completed", "Refused", "Non-resident", "Flyer given"];
 
 const ED_HINT_BY_NAME = {};
 ED_LIST.forEach(e => { ED_HINT_BY_NAME[e.name] = e.hint; });
@@ -332,8 +303,6 @@ function renderIntercepts(){
     const outsDiv = document.createElement("div");
     outsDiv.className = "outcomes";
     OUTCOMES.forEach(o => {
-      // Hide Ineligible on rows that already claimed an ED.
-      if (o === "Ineligible" && e.claimed_ed) return;
       const b = document.createElement("button");
       b.dataset.sid = sid;
       b.dataset.out = o;
@@ -455,14 +424,7 @@ function recordOutcome(sid, outcome, claimed_ed){
   if (state[sid].outcome) syncEntry(sid);
 }
 
-// -------- Eligibility modal ---------------------------------------------
-let activeId = null;   // sample_id of the in-flight intercept
-function openModal(sid){
-  activeId = sid;
-  document.getElementById("modal-id").textContent = "Intercept " + sid;
-  document.getElementById("modal-bg").classList.add("open");
-}
-function closeModal(){ document.getElementById("modal-bg").classList.remove("open"); }
+let activeId = null;
 
 document.getElementById("approach-btn").addEventListener("click", () => {
   if (!getEnumerator()) {
@@ -470,30 +432,12 @@ document.getElementById("approach-btn").addEventListener("click", () => {
     document.getElementById("enum-input").focus(); return;
   }
   const sid = nextId();
+  activeId = sid;
   state[sid] = { claimed_ed: "", outcome: "", ts: new Date().toISOString(),
                  enumerator: getEnumerator(), synced: false };
   saveState(state);
   renderIntercepts();
-  openModal(sid);
-});
-
-document.getElementById("elig-no").addEventListener("click", () => {
-  if (!activeId) return;
-  recordOutcome(activeId, "Ineligible", "");
-  closeModal(); activeId = null;
-});
-document.getElementById("elig-yes").addEventListener("click", () => {
-  // Hand the phone over — switch to the respondent overlay.
-  closeModal();
   openRespondentOverlay();
-});
-document.getElementById("modal-cancel").addEventListener("click", () => {
-  // Discard the placeholder row if nothing was decided.
-  if (activeId && state[activeId] && !state[activeId].outcome
-      && !state[activeId].claimed_ed) {
-    delete state[activeId]; saveState(state);
-    renderIntercepts();  }
-  closeModal(); activeId = null;
 });
 
 // -------- Respondent overlay (full screen) ------------------------------
@@ -519,14 +463,24 @@ function ensureMap(){
     style: function(f){ return styleFor(f.properties.ED_ENGLISH); },
     onEachFeature: (feature, layer) => {
       const nm = feature.properties.ED_ENGLISH;
-      const hint = feature.properties.hint || "";
-      const label = hint ? nm + "<br><span style='font-weight:normal;font-size:11px'>" + hint + "</span>" : nm;
-      layer.bindTooltip(label, { permanent:true, direction:"center",
-        className:"ed-tooltip-resp", opacity:1 });
       layer.on("click", () => onEdPicked(nm, layer));
     }
   }).addTo(respMap);
   respMap.fitBounds(edLayer.getBounds(), { padding: [8,8] });
+  // Build the color legend
+  const legend = document.getElementById("resp-legend");
+  legend.innerHTML = "";
+  ED_LIST.forEach(e => {
+    const item = document.createElement("span");
+    item.className = "item";
+    item.innerHTML = '<span class="swatch" style="background:' + edColour(e.name) + '"></span>' + e.hint;
+    item.addEventListener("click", () => {
+      edLayer.eachLayer(l => {
+        if (l.feature && l.feature.properties.ED_ENGLISH === e.name) onEdPicked(e.name, l);
+      });
+    });
+    legend.appendChild(item);
+  });
   setTimeout(() => respMap.invalidateSize(), 60);
 }
 
