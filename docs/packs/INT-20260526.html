@@ -82,7 +82,7 @@
   }
   #resp-overlay header.resp-head h2 { margin:0 0 4px 0; font-size:22px; font-weight:700; }
   #resp-overlay header.resp-head p  { margin:0; font-size:16px; opacity:0.95; }
-  #resp-map { flex:1; min-height: 250px; width:100%; }
+  #resp-map { flex:1; min-height: 250px; width:100%; background:#fff; }
   #resp-confirm {
     padding: 16px 18px; background:#fffbea; border-top:1px solid #e6d27a;
     display:none;
@@ -189,7 +189,7 @@
 <ul id="intercepts" class="intercepts"></ul>
 
 <footer>
-  Drogheda PVQ intercept pack v2 &middot; generated 2026-05-26 12:45 &middot;
+  Drogheda PVQ intercept pack v2 &middot; generated 2026-05-26 12:46 &middot;
   Outcomes sync live to the Google Sheet as you tap.
 </footer>
 
@@ -512,10 +512,9 @@ function stylePicked(){ return { color:"#222", weight:4, fillColor:"#27ae60", fi
 
 function ensureMap(){
   if (respMap) return;
-  respMap = L.map("resp-map", { zoomControl:false, attributionControl:false }).setView(ED_CENTER, 13);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-    maxZoom: 19
-  }).addTo(respMap);
+  respMap = L.map("resp-map", { zoomControl:false, attributionControl:false,
+    dragging:false, scrollWheelZoom:false, doubleClickZoom:false,
+    boxZoom:false, keyboard:false, touchZoom:false }).setView(ED_CENTER, 13);
   edLayer = L.geoJSON(ED_GEOJSON, {
     style: function(f){ return styleFor(f.properties.ED_ENGLISH); },
     onEachFeature: (feature, layer) => {
