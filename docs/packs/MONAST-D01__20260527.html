@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MONASTERBOICE — MONAST-D01</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         margin: 0; background:#f7f7f7; color:#222; }
+  header { background:#2c3e50; color:#fff; padding: 10px 14px; position:sticky; top:0; z-index:10; }
+  header h1 { margin:0; font-size:16px; }
+  header .meta { font-size:12px; opacity:0.9; }
+  header .sync-pill {
+    display:inline-block; margin-top:4px; padding: 2px 8px; border-radius: 10px;
+    font-size:11px; font-weight:600; background:#7f8c8d; color:#fff;
+  }
+  header .sync-pill.synced  { background:#27ae60; }
+  header .sync-pill.pending { background:#f39c12; }
+  header .sync-pill.offline { background:#c0392b; }
+  header .sync-pill.email   { background:#34495e; }
+  #enumerator-bar {
+    background:#fff8dc; border-bottom:1px solid #e0c870; padding: 10px 14px;
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    position:sticky; top:54px; z-index:9;
+  }
+  #enumerator-bar.saved { background:#eef9ee; border-bottom-color:#bfe0bf; }
+  #enumerator-bar input {
+    flex:1; min-width: 140px; padding: 8px 10px; font-size:14px;
+    border:1px solid #999; border-radius:6px; background:#fff;
+  }
+  #enumerator-bar button {
+    padding: 8px 14px; font-size:13px; border-radius:6px;
+    border:1px solid #2c3e50; background:#fff; color:#2c3e50;
+  }
+  #enumerator-bar button.primary { background:#27ae60; color:#fff; border-color:#27ae60; }
+  #map { height: 45vh; width: 100%; }
+  .actions { display:flex; gap:8px; padding: 10px 14px; background:#fff; border-bottom:1px solid #ddd; }
+  .actions button { flex:1; padding: 10px 6px; font-size:14px; border-radius:6px; border:1px solid #2c3e50; background:#fff; color:#2c3e50; }
+  .actions button.primary { background:#27ae60; color:#fff; border-color:#27ae60; }
+  ul.stops { list-style:none; padding:0; margin:0; }
+  li.stop { background:#fff; border-bottom:1px solid #eee; padding: 10px 14px; }
+  li.stop h3 { margin:0 0 4px 0; font-size:15px; }
+  li.stop .sub { font-size:12px; color:#666; margin-bottom:6px; }
+  li.stop .directions { display:inline-block; margin: 4px 0 6px 0; font-size:13px; color:#0066cc; text-decoration:none; }
+  .start-survey {
+    display:inline-block; margin: 4px 0 8px 0; padding: 9px 14px;
+    font-size:14px; font-weight:600; color:#fff; background:#27ae60;
+    border:none; border-radius:6px; text-decoration:none;
+  }
+  .start-survey:active { background:#1e8449; }
+  .start-survey[disabled], .start-survey.disabled { background:#bdc3c7; pointer-events:none; }
+  .outcomes { display:flex; flex-wrap:wrap; gap:6px; }
+  .outcomes button { padding: 8px 10px; font-size:13px; border-radius:6px; border:1px solid #999; background:#fafafa; color:#222; position:relative; }
+  .outcomes button.active { background:#2c3e50; color:#fff; border-color:#2c3e50; }
+  .outcomes button[data-out="Completed"].active { background:#27ae60; border-color:#27ae60; }
+  .outcomes button[data-out="Refused"].active { background:#c0392b; border-color:#c0392b; }
+  .outcomes button .unsynced-dot {
+    position:absolute; top:2px; right:2px; width:6px; height:6px; border-radius:50%;
+    background:#f39c12;
+  }
+  li.stop.done { background:#eef9ee; }
+  li.stop.done h3::before { content:"✓ "; color:#27ae60; }
+  /* Flagged / closed stops — desk-review or prior field outcome.
+     Kept in the list (not hidden) so the fieldworker sees them, but visually
+     muted and without outcome buttons so existing closures (notes especially)
+     are not accidentally overwritten. */
+  li.stop.closed { background:#f6f5f1; border-left:4px solid #c0392b; opacity:0.85; }
+  li.stop.closed h3 { color:#7c7c7c; text-decoration:line-through; }
+  li.stop.closed h3::before { content:""; }
+  .closed-badge { display:block; margin-top:6px; padding:6px 8px;
+    background:#fef2f2; border:1px solid #fecaca; border-radius:4px;
+    font-size:0.82rem; color:#6b1f1f; }
+  .closed-badge.vacant   { background:#fef9e7; border-color:#fde68a; color:#92400e; }
+  .closed-badge.flyer    { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+  .closed-badge.completed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .closed-badge .who   { font-weight:600; }
+  .closed-badge .note  { display:block; margin-top:3px; font-style:italic; color:inherit; opacity:0.85; }
+  .stop-notes {
+    display:block; width:100%; margin-top:8px; padding:6px 8px;
+    font: 13px/1.35 inherit; color:#222; background:#fafafa;
+    border:1px solid #ccc; border-radius:6px; resize:vertical; min-height:30px;
+    box-sizing:border-box;
+  }
+  .stop-notes:focus { outline:2px solid #2c3e50; outline-offset:-1px; background:#fff; }
+  .stop-notes.dirty { border-color:#f39c12; background:#fff8e6; }
+  details.reserves { background:#fff; padding: 10px 14px; }
+  details.reserves summary { font-weight:600; padding: 6px 0; }
+  footer { padding: 14px; text-align:center; color:#888; font-size:11px; }
+  .pin {
+    background:#c0392b; color:#fff; border-radius:50%; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;
+    border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+  .pin.reserve { background:#7f8c8d; width:16px; height:16px; font-size:9px; }
+  /* Labels drawn at the centre of each picked-building polygon. Rendered as
+     a small filled circle so the number stays legible at any zoom — at high
+     zoom you see the polygon fill plus the badge inside it; at low zoom the
+     polygon shrinks to a dot and the fixed-size badge does the visual work. */
+  .leaflet-tooltip.poly-label {
+    background: #c0392b; color: #fff;
+    border: 2px solid #fff; border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,.45);
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px;
+    padding: 0; line-height: 1; pointer-events: none;
+  }
+  .leaflet-tooltip.poly-label::before { display: none; }
+  .leaflet-tooltip.poly-label.reserve {
+    background: #7f8c8d;
+    width: 16px; height: 16px;
+    font-size: 9px;
+    border-width: 1.5px;
+  }
+  .leaflet-control-layers-expanded { padding: 6px 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MONASTERBOICE &middot; Pack MONAST-D01</h1>
+  <div class="meta">Date: 2026-05-27 &middot; 25 stops &middot; No quota gate &mdash; offer link to everyone who answers</div>
+  <span class="sync-pill" id="sync-pill">…</span>
+</header>
+
+<div id="enumerator-bar">
+  <strong id="enum-prompt">Enumerator:</strong>
+  <input id="enum-input" type="text" placeholder="Type your name and tap Save" autocomplete="off" autocapitalize="words">
+  <span id="enum-display" style="display:none;"></span>
+  <button id="enum-save" class="primary">Save</button>
+  <button id="enum-edit" style="display:none;">edit</button>
+</div>
+
+<div id="map"></div>
+
+<div class="actions">
+  <button id="copy-btn">Copy outcomes (CSV)</button>
+  <button id="email-btn" class="primary">Email outcomes</button>
+  <button id="reset-btn">Reset</button>
+</div>
+
+<ul id="stops" class="stops"></ul>
+
+<details class="reserves">
+  <summary>Reserve addresses (release if today's list is exhausted)</summary>
+  <ul id="reserves" class="stops"></ul>
+</details>
+
+<footer>
+  Drogheda PVQ field pack v3 &middot; generated 2026-05-27 18:57 &middot;
+  Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
+</footer>
+
+<script>
+const PACK_ID         = "MONAST-D01";
+const PACK_DATE       = "2026-05-27";
+const STOPS           = [{"sample_id":"DRG-8-8289","building_id":"multipolygon/800805315","order":1,"address":"Mullen's Lane","eircode":"","lat":53.729,"lon":-6.4629,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8288","building_id":"multipolygon/800805312","order":2,"address":"Mullen's Lane","eircode":"","lat":53.7291,"lon":-6.4625,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8287","building_id":"multipolygon/800805311","order":3,"address":"Mullen's Lane","eircode":"","lat":53.729,"lon":-6.4618,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8286","building_id":"multipolygon/800805309","order":4,"address":"Mullen's Lane","eircode":"","lat":53.7285,"lon":-6.4622,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8285","building_id":"multipolygon/800805308","order":5,"address":"Mullen's Lane","eircode":"","lat":53.7281,"lon":-6.4616,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8301","building_id":"multipolygon/800805306","order":6,"address":"Mullen's Lane","eircode":"","lat":53.7282,"lon":-6.461,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8295","building_id":"multipolygon/776856406","order":7,"address":"Mullen's Lane","eircode":"","lat":53.7235,"lon":-6.4603,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8294","building_id":"multipolygon/776856408","order":8,"address":"Mullen's Lane","eircode":"","lat":53.7233,"lon":-6.4609,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8293","building_id":"multipolygon/776856409","order":9,"address":"Mullen's Lane","eircode":"","lat":53.7231,"lon":-6.4609,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8291","building_id":"multipolygon/776347786","order":10,"address":"Mullen's Lane","eircode":"","lat":53.7223,"lon":-6.4615,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8292","building_id":"multipolygon/1356454924","order":11,"address":"Mullen's Lane","eircode":"","lat":53.722,"lon":-6.4614,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8296","building_id":"multipolygon/776856400","order":12,"address":"Mullen's Lane","eircode":"","lat":53.7233,"lon":-6.4593,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8303","building_id":"multipolygon/792945605","order":13,"address":"Mullen's Lane","eircode":"","lat":53.7234,"lon":-6.4582,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8306","building_id":"multipolygon/792945600","order":14,"address":"Mullen's Lane","eircode":"","lat":53.7237,"lon":-6.4581,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8307","building_id":"multipolygon/792945608","order":15,"address":"Mullen's Lane","eircode":"","lat":53.723,"lon":-6.4577,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8304","building_id":"multipolygon/776355081","order":16,"address":"Mullen's Lane","eircode":"","lat":53.7227,"lon":-6.4578,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8305","building_id":"multipolygon/776355104","order":17,"address":"Mullen's Lane","eircode":"","lat":53.7223,"lon":-6.4574,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8302","building_id":"multipolygon/776355105","order":18,"address":"Mullen's Lane","eircode":"","lat":53.7223,"lon":-6.4575,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8309","building_id":"multipolygon/776355097","order":19,"address":"Mullen's Lane","eircode":"","lat":53.7214,"lon":-6.4565,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8298","building_id":"multipolygon/776355085","order":20,"address":"Mullen's Lane","eircode":"","lat":53.7208,"lon":-6.4573,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8297","building_id":"multipolygon/776355084","order":21,"address":"Mullen's Lane","eircode":"","lat":53.7203,"lon":-6.4573,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8308","building_id":"multipolygon/776355125","order":22,"address":"Mullen's Lane","eircode":"","lat":53.7199,"lon":-6.4559,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8300","building_id":"multipolygon/1356234424","order":23,"address":"Mullen's Lane","eircode":"","lat":53.7193,"lon":-6.4562,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8299","building_id":"multipolygon/776355148","order":24,"address":"Mullen's Lane","eircode":"","lat":53.7192,"lon":-6.4564,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8290","building_id":"multipolygon/776346693","order":25,"address":"Mullen's Lane","eircode":"","lat":53.7167,"lon":-6.4593,"ed_name":"MONASTERBOICE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-8-8315","building_id":"multipolygon/776355114","order":1,"address":"Mullen's Lane","eircode":"","lat":53.7215,"lon":-6.4492,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8316","building_id":"multipolygon/776355118","order":2,"address":"Mullen's Lane","eircode":"","lat":53.7206,"lon":-6.4508,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8317","building_id":"multipolygon/776355120","order":3,"address":"Mullen's Lane","eircode":"","lat":53.7208,"lon":-6.4529,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8318","building_id":"multipolygon/776355123","order":4,"address":"Mullen's Lane","eircode":"","lat":53.7201,"lon":-6.4553,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8319","building_id":"multipolygon/776355127","order":5,"address":"Mullen's Lane","eircode":"","lat":53.7199,"lon":-6.454,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8320","building_id":"multipolygon/776355766","order":6,"address":"Mullen's Lane","eircode":"","lat":53.7221,"lon":-6.4418,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8321","building_id":"multipolygon/792945585","order":7,"address":"Mullen's Lane","eircode":"","lat":53.726,"lon":-6.4569,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8322","building_id":"multipolygon/792945587","order":8,"address":"Mullen's Lane","eircode":"","lat":53.7256,"lon":-6.4571,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8323","building_id":"multipolygon/792945597","order":9,"address":"Mullen's Lane","eircode":"","lat":53.7245,"lon":-6.4577,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-8-8324","building_id":"multipolygon/792945599","order":10,"address":"Mullen's Lane","eircode":"","lat":53.7239,"lon":-6.4579,"ed_name":"MONASTERBOICE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const POLYGONS        = {"type": "FeatureCollection","name": "file83a938eb75f5","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/776346693", "label": "25", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4596297, 53.7168009 ], [ -6.4593876, 53.7169002 ], [ -6.4593286, 53.7168499 ], [ -6.4593417, 53.7168446 ], [ -6.4592751, 53.7167877 ], [ -6.4592584, 53.7167946 ], [ -6.4592106, 53.7167537 ], [ -6.4592273, 53.7167469 ], [ -6.4591951, 53.7167194 ], [ -6.4593923, 53.7166385 ], [ -6.4594309, 53.7166714 ], [ -6.4594055, 53.7166819 ], [ -6.4594397, 53.716711 ], [ -6.4593703, 53.7167395 ], [ -6.4594303, 53.7167908 ], [ -6.459557, 53.7167389 ], [ -6.4596297, 53.7168009 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776347786", "label": "10", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.461593, 53.7222467 ], [ -6.4616183, 53.7222909 ], [ -6.4615598, 53.7223026 ], [ -6.4615806, 53.7223391 ], [ -6.4615192, 53.7223514 ], [ -6.461527, 53.7223649 ], [ -6.4614679, 53.7223767 ], [ -6.4614602, 53.7223632 ], [ -6.4613751, 53.7223802 ], [ -6.4613254, 53.7222932 ], [ -6.461531, 53.7222521 ], [ -6.4615345, 53.7222584 ], [ -6.461593, 53.7222467 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355081", "label": "16", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4578695, 53.7227674 ], [ -6.4576763, 53.7227889 ], [ -6.457649, 53.7227024 ], [ -6.4578421, 53.722681 ], [ -6.4578695, 53.7227674 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355084", "label": "21", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4571816, 53.7203054 ], [ -6.4571697, 53.720262 ], [ -6.4571804, 53.720261 ], [ -6.4571673, 53.7202131 ], [ -6.4572633, 53.7202039 ], [ -6.4572764, 53.7202518 ], [ -6.457329, 53.7202468 ], [ -6.457374, 53.7204115 ], [ -6.4571989, 53.7204282 ], [ -6.4571856, 53.7203794 ], [ -6.4572013, 53.7203779 ], [ -6.4571924, 53.720345 ], [ -6.4571662, 53.7203475 ], [ -6.4571554, 53.7203079 ], [ -6.4571816, 53.7203054 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355085", "label": "20", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4572392, 53.720707 ], [ -6.4573719, 53.7206951 ], [ -6.4573686, 53.720682 ], [ -6.4574288, 53.7206766 ], [ -6.4574643, 53.7206906 ], [ -6.4574679, 53.7207048 ], [ -6.457441, 53.7207243 ], [ -6.4573994, 53.720728 ], [ -6.4574068, 53.720757 ], [ -6.4574591, 53.7207523 ], [ -6.4574672, 53.7207836 ], [ -6.4574148, 53.7207883 ], [ -6.457434, 53.7208634 ], [ -6.4572828, 53.720877 ], [ -6.4572696, 53.7208255 ], [ -6.4572827, 53.7208244 ], [ -6.4572778, 53.7208052 ], [ -6.4572715, 53.7208058 ], [ -6.4572644, 53.7207782 ], [ -6.4572709, 53.7207776 ], [ -6.4572658, 53.720758 ], [ -6.4572525, 53.7207592 ], [ -6.4572392, 53.720707 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355097", "label": "19", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4565029, 53.7212847 ], [ -6.4565545, 53.7214534 ], [ -6.4564042, 53.7214695 ], [ -6.4563526, 53.7213009 ], [ -6.4565029, 53.7212847 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355104", "label": "17", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4573404, 53.7222814 ], [ -6.4573189, 53.7222296 ], [ -6.4574155, 53.7222156 ], [ -6.457437, 53.7222674 ], [ -6.457414, 53.7222707 ], [ -6.4574382, 53.7223289 ], [ -6.4574024, 53.7223341 ], [ -6.457415, 53.7223643 ], [ -6.4573295, 53.7223767 ], [ -6.4572928, 53.7222883 ], [ -6.4573404, 53.7222814 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355105", "label": "18", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4574155, 53.7222156 ], [ -6.457563, 53.7221941 ], [ -6.4576077, 53.7223017 ], [ -6.4575601, 53.7223087 ], [ -6.4574602, 53.7223232 ], [ -6.457437, 53.7222674 ], [ -6.4574155, 53.7222156 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355114", "label": "R1", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4493381, 53.72148 ], [ -6.4492299, 53.7215023 ], [ -6.4492418, 53.7215225 ], [ -6.4491946, 53.7215322 ], [ -6.4491827, 53.721512 ], [ -6.4491322, 53.7215224 ], [ -6.4490804, 53.7214344 ], [ -6.4491461, 53.7214208 ], [ -6.4491537, 53.7214337 ], [ -6.4492938, 53.7214048 ], [ -6.4493381, 53.72148 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355118", "label": "R2", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4507904, 53.720707 ], [ -6.45072, 53.7206039 ], [ -6.4508035, 53.7205839 ], [ -6.4508739, 53.7206871 ], [ -6.4507904, 53.720707 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355120", "label": "R3", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4530234, 53.7207114 ], [ -6.4530713, 53.7207862 ], [ -6.4527756, 53.7208525 ], [ -6.4527277, 53.7207777 ], [ -6.4530234, 53.7207114 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355123", "label": "R4", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4551846, 53.7200761 ], [ -6.4552527, 53.7200606 ], [ -6.4552485, 53.7200542 ], [ -6.4553203, 53.7200379 ], [ -6.4553723, 53.7201178 ], [ -6.4554198, 53.720107 ], [ -6.4554336, 53.7201284 ], [ -6.4553258, 53.7201529 ], [ -6.4553, 53.7201131 ], [ -6.4552204, 53.7201312 ], [ -6.4551846, 53.7200761 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355125", "label": "22", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4559786, 53.719927 ], [ -6.4558715, 53.7199681 ], [ -6.455779, 53.7198835 ], [ -6.455886, 53.7198425 ], [ -6.4559786, 53.719927 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355127", "label": "R5", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4539575, 53.7198193 ], [ -6.4540037, 53.7198095 ], [ -6.4540534, 53.7198911 ], [ -6.4539442, 53.7199143 ], [ -6.4539396, 53.7199069 ], [ -6.4538255, 53.7199312 ], [ -6.4538097, 53.7199053 ], [ -6.4537804, 53.7198572 ], [ -6.4539112, 53.7198293 ], [ -6.4539004, 53.7198114 ], [ -6.4539467, 53.7198016 ], [ -6.4539575, 53.7198193 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355148", "label": "24", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4563325, 53.7192798 ], [ -6.4562659, 53.7192426 ], [ -6.4563178, 53.71921 ], [ -6.4562902, 53.7191946 ], [ -6.4564039, 53.7191232 ], [ -6.4564315, 53.7191387 ], [ -6.4564982, 53.7191758 ], [ -6.4563325, 53.7192798 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776355766", "label": "R6", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.441845, 53.7220427 ], [ -6.4418852, 53.7220391 ], [ -6.4418983, 53.7220914 ], [ -6.4417892, 53.7221009 ], [ -6.4417923, 53.7221136 ], [ -6.4417473, 53.7221175 ], [ -6.4417442, 53.7221049 ], [ -6.4416495, 53.7221132 ], [ -6.4416364, 53.722061 ], [ -6.4416648, 53.7220585 ], [ -6.4416538, 53.7220146 ], [ -6.4417963, 53.7220021 ], [ -6.4418016, 53.7220233 ], [ -6.4418393, 53.72202 ], [ -6.441845, 53.7220427 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776856400", "label": "12", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4594084, 53.7233059 ], [ -6.4592328, 53.7233555 ], [ -6.4591694, 53.7232769 ], [ -6.4592192, 53.7232628 ], [ -6.4592119, 53.7232538 ], [ -6.459279, 53.7232348 ], [ -6.4592863, 53.7232439 ], [ -6.4593451, 53.7232273 ], [ -6.4594084, 53.7233059 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776856406", "label": "7", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4603083, 53.7233765 ], [ -6.4603761, 53.7235215 ], [ -6.4602648, 53.7235397 ], [ -6.460197, 53.7233947 ], [ -6.4603083, 53.7233765 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776856408", "label": "8", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4608659, 53.723297 ], [ -6.4608847, 53.7233307 ], [ -6.4608444, 53.7233385 ], [ -6.4608259, 53.7233053 ], [ -6.4608659, 53.723297 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/776856409", "label": "9", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4610518, 53.723077 ], [ -6.4610742, 53.7231201 ], [ -6.460979, 53.7231375 ], [ -6.4609856, 53.7231503 ], [ -6.4609298, 53.7231604 ], [ -6.4609353, 53.723171 ], [ -6.4608766, 53.7231817 ], [ -6.4608712, 53.7231711 ], [ -6.4608066, 53.7231829 ], [ -6.4607722, 53.7231166 ], [ -6.4608459, 53.7231032 ], [ -6.4608387, 53.7230893 ], [ -6.460887, 53.7230805 ], [ -6.4608942, 53.7230945 ], [ -6.4609513, 53.7230841 ], [ -6.4609566, 53.7230943 ], [ -6.4610518, 53.723077 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945585", "label": "R7", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4569904, 53.7259164 ], [ -6.4569506, 53.725992 ], [ -6.4569828, 53.7259979 ], [ -6.4569571, 53.7260468 ], [ -6.4569413, 53.7260439 ], [ -6.456833, 53.726024 ], [ -6.4568188, 53.7260213 ], [ -6.4568486, 53.7259646 ], [ -6.4568133, 53.7259581 ], [ -6.456849, 53.7258904 ], [ -6.4569904, 53.7259164 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945587", "label": "R8", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4573076, 53.7256506 ], [ -6.4570326, 53.7256189 ], [ -6.4570691, 53.7255085 ], [ -6.457188, 53.7255222 ], [ -6.4571686, 53.7255811 ], [ -6.4573245, 53.7255991 ], [ -6.4573076, 53.7256506 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945597", "label": "R9", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4578221, 53.7244352 ], [ -6.4578656, 53.7245534 ], [ -6.4577964, 53.7245623 ], [ -6.4577791, 53.724515 ], [ -6.45776, 53.7245175 ], [ -6.4577707, 53.7245466 ], [ -6.4576771, 53.7245587 ], [ -6.4576664, 53.7245296 ], [ -6.4575601, 53.7245432 ], [ -6.457557, 53.7245347 ], [ -6.457534, 53.7244723 ], [ -6.4578221, 53.7244352 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945599", "label": "R10", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4579694, 53.7238181 ], [ -6.457995, 53.7238852 ], [ -6.4579058, 53.7238972 ], [ -6.4579209, 53.7239367 ], [ -6.4578412, 53.7239474 ], [ -6.4578004, 53.7238407 ], [ -6.4579694, 53.7238181 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945600", "label": "14", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4581374, 53.7237614 ], [ -6.458017, 53.7237427 ], [ -6.4580827, 53.7235947 ], [ -6.4581266, 53.7236015 ], [ -6.4581444, 53.7235614 ], [ -6.4582963, 53.723585 ], [ -6.4582738, 53.7236356 ], [ -6.4581985, 53.7236238 ], [ -6.4581602, 53.72371 ], [ -6.4582195, 53.7237193 ], [ -6.4582459, 53.7237372 ], [ -6.4582346, 53.7237627 ], [ -6.4581967, 53.7237706 ], [ -6.4581374, 53.7237614 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945605", "label": "13", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4580613, 53.7233733 ], [ -6.4581911, 53.7233561 ], [ -6.4582481, 53.723506 ], [ -6.4581183, 53.7235233 ], [ -6.4580613, 53.7233733 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/792945608", "label": "15", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4577501, 53.7229397 ], [ -6.4577806, 53.723017 ], [ -6.4577021, 53.7230278 ], [ -6.4575908, 53.7230432 ], [ -6.4575604, 53.7229658 ], [ -6.4577501, 53.7229397 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/800805306", "label": "6", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4610291, 53.7280873 ], [ -6.4610291, 53.7282134 ], [ -6.4609104, 53.7282134 ], [ -6.4609104, 53.7281873 ], [ -6.4608504, 53.7281873 ], [ -6.4608504, 53.7282134 ], [ -6.4607317, 53.7282134 ], [ -6.4607317, 53.7280873 ], [ -6.4608504, 53.7280873 ], [ -6.4608504, 53.7281309 ], [ -6.4609104, 53.7281309 ], [ -6.4609104, 53.7280873 ], [ -6.4609433, 53.7280873 ], [ -6.4609433, 53.7280464 ], [ -6.4610124, 53.7280464 ], [ -6.4610124, 53.7280873 ], [ -6.4610291, 53.7280873 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/800805308", "label": "5", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4616273, 53.728121 ], [ -6.4616001, 53.7281612 ], [ -6.4615528, 53.72815 ], [ -6.46158, 53.7281098 ], [ -6.4616273, 53.728121 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/800805309", "label": "4", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4625192, 53.7284956 ], [ -6.4624631, 53.728609 ], [ -6.4619535, 53.7285208 ], [ -6.4619906, 53.7284459 ], [ -6.4620279, 53.7284523 ], [ -6.4620469, 53.7284139 ], [ -6.4625192, 53.7284956 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/800805311", "label": "3", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4620192, 53.7290121 ], [ -6.462049, 53.729018 ], [ -6.4619994, 53.7291052 ], [ -6.4619032, 53.7290861 ], [ -6.4618921, 53.7291056 ], [ -6.4617833, 53.729084 ], [ -6.4617943, 53.7290645 ], [ -6.4617299, 53.7290517 ], [ -6.4617795, 53.7289644 ], [ -6.4617967, 53.7289679 ], [ -6.4618214, 53.7289244 ], [ -6.4619068, 53.7289414 ], [ -6.4618821, 53.7289848 ], [ -6.4619663, 53.7290016 ], [ -6.4619713, 53.7289928 ], [ -6.4620242, 53.7290033 ], [ -6.4620192, 53.7290121 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/800805312", "label": "2", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4626413, 53.7291241 ], [ -6.4626037, 53.729203 ], [ -6.4623305, 53.7291574 ], [ -6.4623681, 53.7290785 ], [ -6.4626413, 53.7291241 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/800805315", "label": "1", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4629507, 53.7290883 ], [ -6.4629377, 53.7291112 ], [ -6.4628819, 53.7291001 ], [ -6.4628949, 53.7290772 ], [ -6.4627887, 53.7290561 ], [ -6.4628302, 53.7289831 ], [ -6.4629364, 53.7290042 ], [ -6.4629454, 53.7289882 ], [ -6.4630012, 53.7289993 ], [ -6.4629921, 53.7290153 ], [ -6.4630756, 53.7290319 ], [ -6.4630341, 53.7291049 ], [ -6.4629507, 53.7290883 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1356234424", "label": "23", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.4562729, 53.7193222 ], [ -6.4561374, 53.7194064 ], [ -6.4560729, 53.71937 ], [ -6.4562084, 53.7192859 ], [ -6.4562729, 53.7193222 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1356454924", "label": "11", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.461416, 53.722052 ], [ -6.4613583, 53.7220755 ], [ -6.4613115, 53.7220352 ], [ -6.4613692, 53.7220117 ], [ -6.461416, 53.722052 ] ] ] ] } }]};
+const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
+const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
+const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
+const COORDINATOR_EMAIL = "joao@developmentperspectives.ie";
+const OUTCOMES = ["No answer","Refused","Completed","Flyer given","Vacant","Not residential","Revisit"];
+
+// -------- Enumerator (runtime, stored in localStorage) --------
+const ENUM_KEY = "pvq_enumerator";
+const OPEN_PING_KEY = "pvq_last_open_ping_" + PACK_ID;
+function getEnumerator(){ return localStorage.getItem(ENUM_KEY) || ""; }
+function setEnumerator(name){
+  localStorage.setItem(ENUM_KEY, name);
+  renderEnumeratorBar();
+  renderStops();        // survey URLs depend on enumerator
+  renderSyncPill();
+  pingOpen(true);       // forced ping on every save
+}
+function renderEnumeratorBar(){
+  const name = getEnumerator();
+  const bar    = document.getElementById("enumerator-bar");
+  const input  = document.getElementById("enum-input");
+  const display= document.getElementById("enum-display");
+  const save   = document.getElementById("enum-save");
+  const edit   = document.getElementById("enum-edit");
+  if (name) {
+    bar.classList.add("saved");
+    input.style.display = "none";
+    save.style.display = "none";
+    display.style.display = "";
+    display.textContent = " " + name;
+    edit.style.display = "";
+  } else {
+    bar.classList.remove("saved");
+    input.style.display = "";
+    save.style.display = "";
+    display.style.display = "none";
+    edit.style.display = "none";
+    input.value = "";
+  }
+}
+
+// -------- Stops state (outcomes) --------
+// state[sample_id] = { outcome, ts, enumerator, synced }
+const STORAGE_KEY = "pvq_outcomes_" + PACK_ID + "_" + PACK_DATE;
+function loadState(){
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    // Backfill missing fields from older state shapes
+    Object.keys(s).forEach(k => {
+      if (typeof s[k].synced     === "undefined") s[k].synced = false;
+      if (typeof s[k].enumerator === "undefined") s[k].enumerator = getEnumerator();
+      if (typeof s[k].notes      === "undefined") s[k].notes = "";
+    });
+    return s;
+  } catch(e){ return {}; }
+}
+function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function dirHref(lat, lon){
+  return "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lon + "&travelmode=walking";
+}
+
+function surveyUrl(stop){
+  if (!QUALTRICS_BASE) return "";
+  const params = new URLSearchParams({
+    sample_id: stop.sample_id,
+    pack: PACK_ID,
+    enumerator: getEnumerator(),
+    ed_name: stop.ed_name || "",
+    cluster_id: (stop.cluster_id == null ? "" : String(stop.cluster_id))
+  });
+  return QUALTRICS_BASE + "?" + params.toString();
+}
+
+function renderStops(){
+  const ul = document.getElementById("stops");
+  ul.innerHTML = "";
+  STOPS.forEach(s => {
+    const li = document.createElement("li");
+    const cls = ["stop"];
+    if (s.closed)            cls.push("closed");
+    else if (state[s.sample_id]) cls.push("done");
+    li.className = cls.join(" ");
+    li.id = "stop-" + s.sample_id;
+    const subParts = [];
+    if (s.eircode) subParts.push("Eircode " + s.eircode);
+    subParts.push(s.lat.toFixed(5) + ", " + s.lon.toFixed(5));
+    const h3 = document.createElement("h3");
+    h3.textContent = s.order + ". " + s.address;
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = subParts.join(" · ");
+    const a = document.createElement("a");
+    a.className = "directions";
+    a.href = dirHref(s.lat, s.lon);
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Directions ▸";
+
+    const survey = document.createElement("a");
+    survey.className = "start-survey" + (QUALTRICS_BASE ? "" : " disabled");
+    survey.href = QUALTRICS_BASE ? surveyUrl(s) : "#";
+    survey.target = "_blank";
+    survey.rel = "noopener";
+    survey.textContent = QUALTRICS_BASE ? "▶ Start survey on this device" : "(survey URL not configured)";
+
+    const outsDiv = document.createElement("div");
+    outsDiv.className = "outcomes";
+    OUTCOMES.forEach(o => {
+      const b = document.createElement("button");
+      b.dataset.sid = s.sample_id;
+      b.dataset.out = o;
+      b.textContent = o;
+      const entry = state[s.sample_id];
+      if (entry && entry.outcome === o) {
+        b.classList.add("active");
+        if (!entry.synced) {
+          const dot = document.createElement("span");
+          dot.className = "unsynced-dot";
+          dot.title = "Not yet synced";
+          b.appendChild(dot);
+        }
+      }
+      outsDiv.appendChild(b);
+    });
+
+    // Notes textarea — per-house freetext, persisted in localStorage.
+    // The value can live in two places:
+    //   (a) state[sample_id].notes — if an outcome has been tapped for this house
+    //   (b) the pendingNotes stash  — if not yet tapped (note typed standalone)
+    // Read from both so the textarea always shows what the user typed last.
+    let prefillNote = "";
+    if (state[s.sample_id] && state[s.sample_id].notes) {
+      prefillNote = state[s.sample_id].notes;
+    } else {
+      try {
+        const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+        prefillNote = stash[s.sample_id] || "";
+      } catch(_) {}
+    }
+    const notesEl = document.createElement("textarea");
+    notesEl.className = "stop-notes" + (prefillNote && (!state[s.sample_id] || !state[s.sample_id].synced) ? " dirty" : "");
+    notesEl.dataset.sid = s.sample_id;
+    notesEl.rows = 2;
+    notesEl.placeholder = "Notes about this house (optional)";
+    notesEl.value = prefillNote;
+
+    li.appendChild(h3);
+    li.appendChild(sub);
+    li.appendChild(a);
+    li.appendChild(document.createElement("br"));
+    li.appendChild(survey);
+    // For closed/flagged stops, show a badge with the prior closure reason
+    // (colour-coded), but keep ALL interactive controls active — survey link,
+    // outcome buttons, notes textarea — so the fieldworker can override if
+    // they verify the address in person.
+    if (s.closed) {
+      const badge = document.createElement("div");
+      const outcomeLower = (s.closed_outcome || "").toLowerCase();
+      badge.className = "closed-badge" +
+        (outcomeLower.indexOf("vacant") >= 0       ? " vacant" :
+         outcomeLower.indexOf("flyer")  >= 0       ? " flyer"  :
+         outcomeLower === "completed"              ? " completed" : "");
+      let inner = "🚫 <strong>Flagged:</strong> " +
+        (s.closed_outcome || "(unknown)");
+      if (s.closed_note) {
+        inner += '<span class="note">"' + s.closed_note.replace(/"/g,"&quot;") + '"</span>';
+      }
+      badge.innerHTML = inner;
+      li.appendChild(badge);
+    }
+    li.appendChild(outsDiv);
+    li.appendChild(notesEl);
+    ul.appendChild(li);
+  });
+}
+
+function renderReserves(){
+  const ul = document.getElementById("reserves");
+  ul.innerHTML = "";
+  RESERVES.forEach((s,i) => {
+    const li = document.createElement("li");
+    li.className = "stop";
+    const subParts = [];
+    if (s.eircode) subParts.push("Eircode " + s.eircode);
+    subParts.push(s.lat.toFixed(5) + ", " + s.lon.toFixed(5));
+    const h3 = document.createElement("h3");
+    h3.textContent = "R" + (i+1) + ". " + s.address;
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = subParts.join(" · ");
+    const a = document.createElement("a");
+    a.className = "directions";
+    a.href = dirHref(s.lat, s.lon);
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Directions ▸";
+    li.appendChild(h3); li.appendChild(sub); li.appendChild(a);
+    ul.appendChild(li);
+  });
+}
+
+// -------- Sync engine --------
+function countUnsynced(){
+  return Object.keys(state).filter(k => !state[k].synced).length;
+}
+function renderSyncPill(){
+  const pill = document.getElementById("sync-pill");
+  if (!ENDPOINT_URL) {
+    pill.className = "sync-pill email";
+    pill.textContent = "Email-only mode";
+    return;
+  }
+  const n = countUnsynced();
+  if (!navigator.onLine) {
+    pill.className = "sync-pill offline";
+    pill.textContent = "Offline" + (n ? " · " + n + " pending" : "");
+  } else if (n > 0) {
+    pill.className = "sync-pill pending";
+    pill.textContent = n + " pending";
+  } else {
+    pill.className = "sync-pill synced";
+    pill.textContent = "Synced ✓";
+  }
+}
+
+async function postJson(payload){
+  // text/plain to avoid CORS preflight — Apps Script accepts JSON body.
+  const r = await fetch(ENDPOINT_URL, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload),
+    redirect: "follow",
+    keepalive: true
+  });
+  return r.json();
+}
+
+async function syncEntry(sample_id){
+  if (!ENDPOINT_URL) return;
+  const e = state[sample_id];
+  if (!e || e.synced) return;
+  try {
+    const j = await postJson({
+      event: "outcome",
+      secret: ENDPOINT_SECRET,
+      pack_id: PACK_ID,
+      pack_date: PACK_DATE,
+      sample_id: sample_id,
+      enumerator: e.enumerator || getEnumerator(),
+      outcome: e.outcome,
+      attempt_ts: e.ts,
+      notes: e.notes || ""
+    });
+    if (j && j.ok) {
+      e.synced = true;
+      saveState(state);
+      renderSyncPill();
+      markSyncedDOM(sample_id);   // targeted update — does NOT rebuild textareas
+    }
+  } catch(err) {
+    // Stay unsynced; will retry on next trigger.
+  }
+}
+
+// Surgical DOM update for a single stop after its outcome has synced.
+// Removes the orange "unsynced" dot and amber border on the notes box,
+// without rebuilding the textarea (which would interrupt anyone mid-typing).
+function markSyncedDOM(sid){
+  const li = document.getElementById("stop-" + sid);
+  if (!li) return;
+  const dot = li.querySelector(".outcomes button.active .unsynced-dot");
+  if (dot) dot.remove();
+  const note = li.querySelector(".stop-notes");
+  if (note) note.classList.remove("dirty");
+}
+function flushUnsynced(){
+  Object.keys(state).forEach(syncEntry);
+}
+
+// Throttled "pack opened" ping. forced=true bypasses the 1h throttle.
+async function pingOpen(forced){
+  if (!ENDPOINT_URL) return;
+  const name = getEnumerator();
+  if (!name) return;
+  const last = parseInt(localStorage.getItem(OPEN_PING_KEY) || "0", 10);
+  const now  = Date.now();
+  if (!forced && (now - last) < 3600 * 1000) return;
+  try {
+    await postJson({
+      event: "open",
+      secret: ENDPOINT_SECRET,
+      pack_id: PACK_ID,
+      pack_date: PACK_DATE,
+      enumerator: name,
+      ts: new Date().toISOString(),
+      user_agent: navigator.userAgent
+    });
+    localStorage.setItem(OPEN_PING_KEY, String(now));
+  } catch(err) { /* non-fatal */ }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) { flushUnsynced(); pingOpen(false); renderSyncPill(); }
+});
+window.addEventListener("online",  () => { flushUnsynced(); renderSyncPill(); });
+window.addEventListener("offline", renderSyncPill);
+
+// -------- Outcome button clicks --------
+document.addEventListener("click", e => {
+  if (e.target.matches(".outcomes button")) {
+    const name = getEnumerator();
+    if (!name) {
+      alert("Please type your name in the Enumerator box at the top and tap Save before recording outcomes.");
+      document.getElementById("enum-input").focus();
+      return;
+    }
+    const sid = e.target.dataset.sid;
+    const out = e.target.dataset.out;
+    // Re-tapping the same outcome is a no-op (prevents accidental erasure
+    // and keeps the Sheet's upsert key clean).
+    if (state[sid] && state[sid].outcome === out) return;
+    // Pull any pending note that was typed before an outcome was tapped.
+    let pending = "";
+    try {
+      const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+      pending = stash[sid] || "";
+      if (stash[sid]) { delete stash[sid]; localStorage.setItem(STORAGE_KEY + "_pendingNotes", JSON.stringify(stash)); }
+    } catch(_) {}
+    const existingNotes = (state[sid] && state[sid].notes) || pending || "";
+    state[sid] = {
+      outcome: out,
+      ts: new Date().toISOString(),
+      enumerator: name,
+      synced: false,
+      notes: existingNotes
+    };
+    saveState(state);
+    renderStops();
+    renderSyncPill();
+    syncEntry(sid);
+  }
+});
+
+// -------- Notes textarea: save locally on every change, sync on blur --------
+document.addEventListener("input", e => {
+  if (!e.target.matches(".stop-notes")) return;
+  const sid = e.target.dataset.sid;
+  const v   = e.target.value;
+  const existing = state[sid];
+  if (existing) {
+    if (existing.notes !== v) {
+      existing.notes  = v;
+      existing.synced = false;
+      saveState(state);
+      e.target.classList.add("dirty");
+      renderSyncPill();
+    }
+  } else {
+    // No outcome yet — stash the note locally but do not create a state entry
+    // (a state row without an outcome would write a blank-outcome row to the
+    // Sheet, which is misleading). The note will attach when an outcome is tapped.
+    const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+    stash[sid] = v;
+    localStorage.setItem(STORAGE_KEY + "_pendingNotes", JSON.stringify(stash));
+    e.target.classList.toggle("dirty", v.length > 0);
+  }
+});
+document.addEventListener("blur", e => {
+  if (!e.target.matches(".stop-notes")) return;
+  const sid = e.target.dataset.sid;
+  if (state[sid] && !state[sid].synced) {
+    syncEntry(sid).then(() => {
+      if (state[sid] && state[sid].synced) e.target.classList.remove("dirty");
+    });
+  }
+}, true);
+
+// -------- Enumerator bar interactions --------
+document.getElementById("enum-save").addEventListener("click", () => {
+  const v = document.getElementById("enum-input").value.trim();
+  if (!v) { alert("Please type your name first."); return; }
+  setEnumerator(v);
+});
+document.getElementById("enum-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); document.getElementById("enum-save").click(); }
+});
+document.getElementById("enum-edit").addEventListener("click", () => {
+  localStorage.removeItem(ENUM_KEY);
+  renderEnumeratorBar();
+  document.getElementById("enum-input").focus();
+});
+
+// -------- CSV export (clipboard + email) --------
+function csvOutcomes(){
+  const header = "sample_id,pack_id,enumerator,attempt_date,attempt_time,outcome,notes";
+  function csvCell(v){
+    v = (v == null ? "" : String(v));
+    if (/[",\n\r]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }
+  const rows = Object.entries(state).map(function(kv){
+    const sid = kv[0], v = kv[1];
+    const d = new Date(v.ts);
+    const date = d.toISOString().slice(0,10);
+    const time = d.toISOString().slice(11,16);
+    return [sid, PACK_ID, v.enumerator || getEnumerator(), date, time, v.outcome, v.notes || ""].map(csvCell).join(",");
+  });
+  return header + "\n" + rows.join("\n");
+}
+
+document.getElementById("copy-btn").addEventListener("click", async () => {
+  const csv = csvOutcomes();
+  try {
+    await navigator.clipboard.writeText(csv);
+    alert("Outcomes copied to clipboard.\n\n" + Object.keys(state).length + " rows.");
+  } catch(e) {
+    prompt("Copy this CSV manually:", csv);
+  }
+});
+
+document.getElementById("email-btn").addEventListener("click", () => {
+  const csv = csvOutcomes();
+  const subject = "PVQ outcomes – " + PACK_ID + " – " + PACK_DATE + " – " + (getEnumerator() || "(no name)");
+  const body = csv;
+  const to = encodeURIComponent(COORDINATOR_EMAIL || "");
+  location.href = "mailto:" + to +
+    "?subject=" + encodeURIComponent(subject) +
+    "&body="    + encodeURIComponent(body);
+});
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  if (confirm("Clear all outcomes for this pack? This cannot be undone.")) {
+    state = {};
+    saveState(state);
+    renderStops();
+    renderSyncPill();
+  }
+});
+
+// -------- Boot --------
+renderEnumeratorBar();
+renderStops();
+renderReserves();
+renderSyncPill();
+flushUnsynced();
+pingOpen(false);
+
+const map = L.map("map").setView([53.723388, -6.4592628], 16);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap contributors"
+}).addTo(map);
+
+// Picked buildings' polygons ARE the markers — filled red (primary) or grey
+// (reserve), with the stop number rendered as a tooltip in the polygon's
+// centre. Eliminates the pin-overlap problem on tight terraces because each
+// polygon is a distinct shape.
+const POLY_BIDS = new Set();
+if (POLYGONS && POLYGONS.features && POLYGONS.features.length > 0) {
+  L.geoJSON(POLYGONS, {
+    style: function(f) {
+      const isReserve = f.properties.kind === "reserve";
+      return {
+        color: "#fff",
+        weight: 1.5,
+        fillColor: isReserve ? "#7f8c8d" : "#c0392b",
+        fillOpacity: 0.85
+      };
+    },
+    onEachFeature: function(f, layer) {
+      POLY_BIDS.add(f.properties.building_id);
+      const cls = "poly-label" + (f.properties.kind === "reserve" ? " reserve" : "");
+      layer.bindTooltip(String(f.properties.label), {
+        permanent: true,
+        direction: "center",
+        className: cls,
+        opacity: 1
+      });
+    }
+  }).addTo(map);
+}
+
+function pinIcon(label, reserve){
+  const sz = reserve ? 16 : 22;
+  return L.divIcon({
+    className: "",
+    iconSize: [sz, sz],
+    iconAnchor: [sz/2, sz/2],
+    html: '<div class="pin' + (reserve ? " reserve" : "") + '">' + label + '</div>'
+  });
+}
+
+function popupHtml(s){
+  return "<strong>" + s.order + ". " + s.address + "</strong><br>" +
+    (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
+    '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
+    '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>';
+}
+
+const bounds = [];
+STOPS.forEach(s => {
+  // If this building has a polygon on the map, the polygon IS the marker —
+  // skip the pin circle (avoids overlapping pins on dense terraces). Bind
+  // the popup to the polygon instead, by stop building_id.
+  if (POLY_BIDS.has(s.building_id)) {
+    // Polygon already drawn; popup attached below via building_id lookup.
+  } else {
+    L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
+      .addTo(map)
+      .bindPopup(popupHtml(s));
+  }
+  bounds.push([s.lat, s.lon]);
+});
+
+// Attach popups to polygons by matching building_id.
+map.eachLayer(function(layer){
+  if (!layer.feature || !layer.feature.properties) return;
+  const bid = layer.feature.properties.building_id;
+  const stop = STOPS.find(s => s.building_id === bid);
+  if (stop) layer.bindPopup(popupHtml(stop));
+});
+
+// Reserves live in their own layer so the user can toggle them on/off.
+// Default OFF — the map shows clean primary stops; tap the "Reserves" box
+// to reveal grey backup pins on the same street.
+const reserveLayer = L.layerGroup();
+RESERVES.forEach((s,i) => {
+  if (POLY_BIDS.has(s.building_id)) return; // polygon already shown
+  L.marker([s.lat, s.lon], { icon: pinIcon("R"+(i+1), true) })
+    .bindPopup("<strong>R" + (i+1) + ". " + s.address + "</strong><br><em>reserve</em>")
+    .addTo(reserveLayer);
+  bounds.push([s.lat, s.lon]);
+});
+if (RESERVES.length > 0) {
+  L.control.layers(null,
+    { ["Reserves (" + RESERVES.length + ")"]: reserveLayer },
+    { collapsed: false, position: "topright" }
+  ).addTo(map);
+}
+if (bounds.length) map.fitBounds(bounds, { padding: [20,20] });
+</script>
+</body>
+</html>
