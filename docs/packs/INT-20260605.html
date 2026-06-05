@@ -132,7 +132,14 @@
   ul.intercepts { list-style:none; padding:0; margin:0; }
   li.intercept { background:#fff; border-bottom:1px solid #eee; padding: 10px 14px; }
   li.intercept .row-top { display:flex; justify-content:space-between; align-items:center; }
+  li.intercept .row-right { display:flex; align-items:center; gap:6px; }
   li.intercept .id { font-family:monospace; font-size:12px; color:#555; }
+  li.intercept .del-btn {
+    border:none; background:transparent; color:#c0392b; font-size:16px;
+    line-height:1; padding:4px 8px; margin:-4px -4px -4px 0; cursor:pointer;
+    border-radius:6px; -webkit-tap-highlight-color:transparent;
+  }
+  li.intercept .del-btn:active { background:#fdecea; }
   li.intercept .badge {
     display:inline-block; padding: 2px 8px; border-radius:10px;
     font-size:11px; font-weight:700; color:#fff;
@@ -226,7 +233,7 @@
 <ul id="intercepts" class="intercepts"></ul>
 
 <footer>
-  Drogheda PVQ intercept pack v3 &middot; generated 2026-06-05 12:14 &middot;
+  Drogheda PVQ intercept pack v3 &middot; generated 2026-06-05 12:29 &middot;
   Outcomes sync live to the Google Sheet.
 </footer>
 
@@ -369,6 +376,7 @@ function renderIntercepts(){
     if (sid === activeId) return;
     const e = state[sid];
     if (!e.outcome) return;
+    if (e.pendingDelete) return;   // tombstoned, awaiting server-side row delete
     const li = document.createElement("li");
     li.className = "intercept";
     const cssOut = e.outcome.toLowerCase().replace(/\s+/g, "-");
@@ -386,8 +394,20 @@ function renderIntercepts(){
       dot.className = "unsynced-dot"; dot.title = "Not yet synced";
       badge.appendChild(dot);
     }
+    const rowRight = document.createElement("div");
+    rowRight.className = "row-right";
+    rowRight.appendChild(badge);
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "del-btn";
+    del.textContent = "🗑";
+    del.title = "Delete this entry";
+    del.setAttribute("aria-label", "Delete " + sid);
+    del.dataset.sid = sid;
+    rowRight.appendChild(del);
+
     rowTop.appendChild(idSpan);
-    rowTop.appendChild(badge);
+    rowTop.appendChild(rowRight);
     li.appendChild(rowTop);
 
     if (e.claimed_ed) {
@@ -420,7 +440,10 @@ function renderIntercepts(){
 
 // -------- Sync ------------------------------------------------------------
 function countUnsynced(){
-  return Object.keys(state).filter(k => state[k].outcome && !state[k].synced).length;
+  return Object.keys(state).filter(k => {
+    const e = state[k];
+    return e && ((e.outcome && !e.synced) || e.pendingDelete);
+  }).length;
 }
 function renderSyncPill(){
   const pill = document.getElementById("sync-pill");
@@ -475,7 +498,56 @@ async function syncEntry(sample_id){
     }
   } catch(err) { /* retry later */ }
 }
-function flushUnsynced(){ Object.keys(state).forEach(syncEntry); }
+function flushUnsynced(){
+  Object.keys(state).forEach(sid => {
+    if (state[sid] && state[sid].pendingDelete) retryDelete(sid);
+    else syncEntry(sid);
+  });
+}
+
+// -------- Delete an entry -------------------------------------------------
+// A finalised entry can be removed if it was a mis-tap / duplicate / wrong
+// outcome. If it had already synced, we POST event:"delete" so the Worker
+// removes the matching row from the Google Sheet; until the server confirms,
+// the entry is kept as a hidden tombstone (pendingDelete) and retried on the
+// next flush (visibilitychange / online), exactly like an unsynced outcome.
+async function deleteEntry(sid){
+  const e = state[sid];
+  if (!e) return;
+  const label = sid + (e.outcome ? " (" + e.outcome + ")" : "");
+  const onSheet = e.synced && ENDPOINT_URL;
+  const msg = onSheet
+    ? "Delete " + label + "?\nThis also removes it from the Google Sheet."
+    : "Delete " + label + "?";
+  if (!confirm(msg)) return;
+  if (!onSheet) {
+    // Never reached the sheet (or email-only mode) — just drop it locally.
+    delete state[sid];
+    saveState(state); renderIntercepts(); renderSyncPill();
+    return;
+  }
+  e.pendingDelete = true;
+  saveState(state); renderIntercepts(); renderSyncPill();
+  retryDelete(sid);
+}
+
+async function retryDelete(sid){
+  const e = state[sid];
+  if (!e || !e.pendingDelete) return;
+  if (!ENDPOINT_URL) { delete state[sid]; saveState(state); renderIntercepts(); renderSyncPill(); return; }
+  try {
+    const j = await postJson({
+      event: "delete",
+      secret: ENDPOINT_SECRET,
+      pack_id: PACK_ID,
+      sample_id: sid
+    });
+    if (j && j.ok) {
+      delete state[sid];
+      saveState(state); renderIntercepts(); renderSyncPill();
+    }
+  } catch(err) { /* offline / failed — retry on next flush */ }
+}
 
 async function pingOpen(forced){
   if (!ENDPOINT_URL) return;
@@ -582,6 +654,13 @@ approachCard.addEventListener("click", e => {
       renderIntercepts();
     }
   }
+});
+
+// -------- Delete button in the list ---------------------------------------
+document.getElementById("intercepts").addEventListener("click", e => {
+  const btn = e.target.closest(".del-btn");
+  if (!btn) return;
+  deleteEntry(btn.dataset.sid);
 });
 
 // -------- Checkbox toggles in the list ------------------------------------
