@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drogheda Values Survey</title>
+<style>
+  :root { --navy:#0b2545; --ink:#1f2d3d; --muted:#5a6b80; --line:#e2e8f0; --accent:#2563eb; }
+  * { box-sizing:border-box; }
+  html, body { overflow-x:hidden; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+         color:var(--ink); margin:0; background:#f6f7f9; line-height:1.45; }
+  .wrap { max-width:680px; width:100%; margin:0 auto; padding:18px 16px 60px; }
+  img, svg { max-width:100%; }
+  h1 { font-size:1.4rem; color:var(--navy); margin:.2rem 0 .4rem; }
+  h2 { font-size:1.1rem; color:var(--navy); margin:1.4rem 0 .5rem; }
+  p.lead { color:var(--muted); margin:.3rem 0 1rem; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin:14px 0; }
+  .btn { display:inline-block; background:var(--navy); color:#fff; border:none; border-radius:9px;
+         padding:13px 22px; font-size:1rem; font-weight:600; cursor:pointer; }
+  .btn:disabled { background:#9aa7b8; cursor:not-allowed; }
+  .btn.secondary { background:#fff; color:var(--navy); border:1.5px solid var(--navy); }
+  label.fld { display:block; font-weight:600; margin:12px 0 5px; }
+  select { width:100%; padding:11px; font-size:1rem; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  .scale { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-top:8px; }
+  .opt { border:1.5px solid var(--line); border-radius:8px; padding:8px 4px; text-align:center; cursor:pointer;
+         font-size:.72rem; color:var(--muted); user-select:none; background:#fff; line-height:1.15; min-height:52px;
+         display:flex; align-items:center; justify-content:center; }
+  .opt.sel { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .item { padding:14px 0; border-bottom:1px solid var(--line); }
+  .item:last-child { border-bottom:none; }
+  .item .stem { font-size:.98rem; }
+  .item .qno { color:var(--muted); font-weight:600; font-size:.8rem; }
+  .progress { position:sticky; top:0; background:#f6f7f9; padding:10px 0 8px; z-index:5; }
+  .bar { height:8px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .bar > span { display:block; height:100%; background:var(--accent); width:0; transition:width .25s; }
+  .pcount { font-size:.85rem; color:var(--muted); margin-bottom:5px; }
+  .hide { display:none; }
+  .note { font-size:.82rem; color:var(--muted); }
+  /* results */
+  .top3 { display:grid; gap:10px; }
+  .vcard { border:1px solid var(--line); border-left:5px solid var(--accent); border-radius:8px; padding:11px 13px; background:#fff; }
+  .vcard .vn { font-weight:700; color:var(--navy); }
+  .vcard .vd { font-size:.86rem; color:var(--muted); }
+  .ho { margin:8px 0; }
+  .ho .hol { display:flex; justify-content:space-between; font-size:.86rem; margin-bottom:3px; }
+  .ho .track { position:relative; height:14px; background:var(--line); border-radius:7px; }
+  .ho .mid { position:absolute; left:50%; top:-2px; bottom:-2px; width:1px; background:#94a3b8; }
+  .ho .fillpos,.ho .fillneg { position:absolute; top:0; bottom:0; background:#3cb44b; border-radius:7px; }
+  .ho .fillneg { background:#f58231; }
+  svg.radar { width:100%; height:auto; display:block; }
+  .toast { position:fixed; left:0; right:0; bottom:0; background:var(--navy); color:#fff; padding:11px 16px;
+           font-size:.9rem; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== INTRO ===== -->
+  <section id="intro">
+    <h1>Drogheda Values Survey</h1>
+    <p class="lead">Thank you for taking part. This short questionnaire asks how much a series of
+    people are or are not like you. There are no right or wrong answers — we're interested in your views.
+    It takes about <strong>5 minutes</strong>, and at the end you'll see your own
+    <strong>personal values profile</strong>.</p>
+    <div class="card">
+      <p class="note">Your responses are <strong>confidential</strong> and used for research only.
+      We do not ask for your name or contact details. By continuing you consent to take part.</p>
+    </div>
+    <button class="btn" id="toDemo">Start</button>
+  </section>
+
+  <!-- ===== DEMOGRAPHICS ===== -->
+  <section id="demo" class="hide">
+    <h1>A little about you</h1>
+    <p class="lead">Just three quick questions before we begin.</p>
+    <div class="card">
+      <label class="fld" for="gender">How do you describe yourself?</label>
+      <select id="gender">
+        <option value="">— select —</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Prefer to self-describe / other</option>
+      </select>
+      <label class="fld" for="age">How old are you?</label>
+      <select id="age">
+        <option value="">— select —</option>
+        <option>Under 18</option>
+        <option>18-24 years old</option>
+        <option>25-34 years old</option>
+        <option>35-44 years old</option>
+        <option>45-54 years old</option>
+        <option>55-64 years old</option>
+        <option>65+ years old</option>
+      </select>
+      <label class="fld" for="edu">What is the highest level of education you have completed?</label>
+      <select id="edu">
+        <option value="">— select —</option>
+        <option>No formal education</option>
+        <option>Primary School</option>
+        <option>Secondary School</option>
+        <option>Technical or Vocational</option>
+        <option>University Bachelors Degree</option>
+        <option>Graduate or professional degree (MA, MS, MBA, PhD, JD, MD, DDS)</option>
+        <option>Prefer not to say</option>
+      </select>
+    </div>
+    <button class="btn" id="toItems" disabled>Continue</button>
+  </section>
+
+  <!-- ===== UNDER 18 STOP ===== -->
+  <section id="ineligible" class="hide">
+    <h1>Thank you</h1>
+    <p class="lead">This survey is intended for adults (18 and over), so we can't include your
+    responses this time. Thanks very much for your interest.</p>
+  </section>
+
+  <!-- ===== ITEMS ===== -->
+  <section id="items" class="hide">
+    <div class="progress">
+      <div class="pcount"><span id="answered">0</span> of 40 answered</div>
+      <div class="bar"><span id="progfill"></span></div>
+    </div>
+    <p class="lead" id="itemLead">Think about how much each person is or is not like you.</p>
+    <div id="itemList"></div>
+    <p class="note" id="validateMsg" style="color:#b91c1c"></p>
+    <button class="btn" id="submitBtn">See my results</button>
+  </section>
+
+  <!-- ===== RESULTS ===== -->
+  <section id="results" class="hide">
+    <h1>Your values profile</h1>
+    <p class="lead">Based on your answers, here is what matters most to you. These are the
+    <em>Basic Human Values</em> (Schwartz) — everyone holds all of them, but in a different order.</p>
+
+    <h2>Your strongest values</h2>
+    <div class="top3" id="top3"></div>
+
+    <h2>The bigger picture</h2>
+    <p class="note">How much each broad value orientation matters to you, relative to your own average.</p>
+    <div id="hoChart"></div>
+
+    <h2>Your full profile</h2>
+    <p class="note">How strongly each of the ten values describes you (1–6).</p>
+    <div id="radar"></div>
+
+    <div class="card"><p class="note" id="saveNote">Saving your response…</p></div>
+    <p class="lead">Thank you for taking part in the Drogheda Values Survey.</p>
+  </section>
+
+</div>
+<div id="toast" class="toast hide"></div>
+
+<script>
+// ---- injected at build time ----
+const ENDPOINT_URL = "https://pvq-field-webhook.joao-dlima.workers.dev";
+const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
+const ITEMS = {"he": ["Thinking up new ideas and being creative is important to him. He likes to do things in his own original way.", "It is important to him to be rich. He wants to have a lot of money and expensive things.", "He thinks it is important that every person in the world be treated equally. He believes everyone should have equal opportunities in life.", "It’s very important to him to show his abilities. He wants people to admire what he does.", "It is important to him to live in secure surroundings. He avoids anything that might endanger his safety.", "He thinks it is important to do lots of different things in life. He always looks for new things to try.", "He believes that people should do what they’re told. He thinks people should follow rules at all times‚ even when no- one is watching.", "It is important to him to listen to people who are different from him. Even when he disagrees with them‚ he still wants to understand them.", "He thinks it’s important not to ask for more than what you have. He believes that people should be satisfied with what they have.", "He seeks every chance he can to have fun. It is important to him to do things that give him pleasure.", "It is important to him to make his own decisions about what he does. He likes to be free to plan and to choose him activities for himself.", "It's very important to him to help the people around him. He wants to care for their well-being.", "Being very successful is important to him. He likes to impress other people.", "It´s very important to him that his country be safe. He thinks the state must be on watch against threats from within and without.", "He likes to take risks. He is always looking for adventures.", "It is important to him always to behave properly. He wants to avoid doing anything people would say is wrong.", "It is important to him to be in charge and tell others what to do. He wants people to do what he says.", "It is important to him to be loyal to his friends. He wants to devote himself to people close to him.", "He strongly believes that people should care for nature. Looking after the environment is important to him.", "Religious belief is important to him. He tries hard to do what his religion requires.", "It is important to him that things be organized and clean. He really does not like things to be a mess.", "He thinks it's important to be interested in things. He likes to be curious and to try to understand all sorts of things.", "He believes all the worlds’ people should live in harmony. Promoting peace among all groups in the world is important to him.", "He thinks it is important to be ambitious. He wants to show how capable he is.", "He thinks it is best to do things in traditional ways. It is important to him to keep up the customs he has learned.", "Enjoying life’s pleasures is important to him. He likes to ‘spoil’ himself.", "It is important to him to respond to the needs of others. He tries to support those he knows.", "He believes he should always show respect to his parents and to older people. It is important to him to be obedient.", "He wants everyone to be treated justly, even people he doesn’t know. It is important to him to protect the weak in society.", "He likes surprises. It is important to him to have an exciting life.", "He tries hard to avoid getting sick. Staying healthy is very important to him.", "Getting ahead in life is important to him. He strives to do better than others.", "Forgiving people who have hurt him is important to him. He tries to see what is good in them and not to hold a grudge.", "It is important to him to be independent. He likes to rely on himself.", "Having a stable government is important to him. He is concerned that the social order be protected.", "It is important to him to be polite to other people all the time. He tries never to disturb or irritate others.", "He really wants to enjoy life. Having a good time is very important to him.", "It is important to him to be humble and modest. He tries not to draw attention to himself.", "He always wants to be the one who makes the decisions. He likes to be the leader.", "It is important to him to adapt to nature and to fit into it. He believes that people should not change nature."], "she": ["Thinking up new ideas and being creative is important to her. She likes to do things in her own original way.", "It is important to her to be rich. She wants to have a lot of money and expensive things.", "She thinks it is important that every person in the world be treated equally. She believes everyone should have equal opportunities in life.", "It’s very important to her to show her abilities. She wants people to admire what she does.", "It is important to her to live in secure surroundings. She avoids anything that might endanger her safety.", "She thinks it is important to do lots of different things in life. She always looks for new things to try.", "She believes that people should do what they’re told. She thinks people should follow rules at all times, even when no-one is watching.", "It is important to her to listen to people who are different from her. Even when she disagrees with them, she still wants to understand them.", "She thinks it’s important not to ask for more than what she has. She believes that people should be satisfied with what they have.", "She seeks every chance she can to have fun. It is important to her to do things that give her pleasure.", "It is important to her to make her own decisions about what she does. She likes to be free to plan and to choose her activities for herself.", "It's very important to her to help the people around her. She wants to care for their well-being.", "Being very successful is important to her. She likes to impress other people.", "It´s very important to her that her country be safe. She thinks the state must be on watch against threats from within and without.", "She likes to take risks. She is always looking for adventures.", "It is important to her always to behave properly. She wants to avoid doing anything people would say is wrong.", "It is important to her to be in charge and tell others what to do. She wants people to do what she says.", "It is important to her to be loyal to her friends. She wants to devote herself to people close to her.", "She strongly believes that people should care for nature. Looking after the environment is important to her.", "Religious belief is important to her. She tries hard to do what her religion requires.", "It is important to her that things be organized and clean. She really does not like things to be a mess.", "She thinks it's important to be interested in things. She likes to be curious and to try to understand all sorts of things.", "She believes all the worlds’ people should live in harmony. Promoting peace among all groups in the world is important to her.", "She thinks it is important to be ambitious. She wants to show how capable she is.", "She thinks it is best to do things in traditional ways. It is important to her to keep up the customs she has learned.", "Enjoying life’s pleasures is important to her. She likes to ‘spoil’ herself.", "It is important to her to respond to the needs of others. She tries to support those she knows.", "She believes she should always show respect to her parents and to older people. It is important to her to be obedient.", "She wants everyone to be treated justly, even people she doesn’t know. It is important to her to protect the weak in society.", "She likes surprises. It is important to her to have an exciting life.", "She tries hard to avoid getting sick. Staying healthy is very important to her.", "Getting ahead in life is important to her. She strives to do better than others.", "Forgiving people who have hurt her is important to her. She tries to see what is good in them and not to hold a grudge.", "It is important to her to be independent. She likes to rely on herself.", "Having a stable government is important to her. She is concerned that the social order be protected.", "It is important to her to be polite to other people all the time. She tries never to disturb or irritate others.", "She really wants to enjoy life. Having a good time is very important to her.", "It is important to her to be humble and modest. She tries not to draw attention to herself.", "She always wants to be the one who makes the decisions. She likes to be the leader.", "It is important to her to adapt to nature and to fit into it. She believes that people should not change nature."], "they": ["Thinking up new ideas and being creative is important to them. They like to do things in their own original way.", "It is important to them to be rich. They want to have a lot of money and expensive things.", "They think it is important that every person in the world be treated equally. They believe everyone should have equal opportunities in life.", "It’s very important to them to show their abilities. They want people to admire what they do.", "It is important to them to live in secure surroundings. They avoid anything that might endanger their safety.", "They think it is important to do lots of different things in life. They always look for new things to try.", "They believe that people should do what they’re told. They think people should follow rules at all times, even when no-one is watching.", "It is important to them to listen to people who are different from them. Even when they disagree with them, they still want to understand them.", "They think it’s important not to ask for more than what they have. They believe that people should be satisfied with what they have.", "They seek every chance they can to have fun. It is important to them to do things that give them pleasure.", "It is important to them to make their own decisions about what they do. They like to be free to plan and to choose their activities for themselves.", "It's very important to them to help the people around them. They want to care for their well-being.", "Being very successful is important to them. They likes to impress other people.", "It´s very important to them that their country be safe. They think the state must be on watch against threats from within and without.", "They like to take risks. They are always looking for adventures.", "It is important to them always to behave properly. They want to avoid doing anything people would say is wrong.", "It is important to them to be in charge and tell others what to do. They want people to do what they say.1", "It is important to them to be loyal to their friends. They want to devote themselves to people close to them.2", "They strongly believe that people should care for nature. Looking after the environment is important to them.3", "Religious belief is important to them. They tries hard to do what their religion requires.", "It is important to them that things be organized and clean. They really do not like things to be a mess.", "They think it's important to be interested in things. They like to be curious and to try to understand all sorts of things.", "They believe all the worlds’ people should live in harmony. Promoting peace among all groups in the world is important to them.", "They think it is important to be ambitious. They want to show how capable they are.", "They think it is best to do things in traditional ways. It is important to them to keep up the customs they have learned.", "Enjoying life’s pleasures is important to them. They like to ‘spoil’ themselves.", "It is important to them to respond to the needs of others. They tries to support those they know.", "They believes they should always show respect to their parents and to older people. It is important to them to be obedient.", "They wants everyone to be treated justly, even people they don’t know. It is important to them to protect the weak in society.", "They likes surprises. It is important to them to have an exciting life.", "They tries hard to avoid getting sick. Staying healthy is very important to them.", "Getting ahead in life is important to them. They strives to do better than others.", "Forgiving people who have hurt them is important to them. They tries to see what is good in them and not to hold a grudge.", "It is important to them to be independent. They likes to rely on themselves.", "Having a stable government is important to them. They is concerned that the social order be protected.", "It is important to them to be polite to other people all the time. They tries never to disturb or irritate others.", "They really wants to enjoy life. Having a good time is very important to them.", "It is important to them to be humble and modest. They tries not to draw attention to themselves.", "They always wants to be the one who makes the decisions. They likes to be the leader.", "It is important to them to adapt to nature and to fit into it. They believes that people should not change nature."], "scale": ["not like me at all", "not like me", "a little like me", "somewhat like me", "like me", "very much like me"]};   // { he:[40], she:[40], they:[40], scale:[6] }
+
+// ---- PVQ-40 scoring key (matches src/progress_report.Rmd / pilot_report.Rmd) ----
+const VALUE_ITEMS = {
+  "Self-Direction":[1,11,22,34], "Stimulation":[6,15,30], "Hedonism":[10,26,37],
+  "Achievement":[4,13,24,32], "Power":[2,17,39], "Security":[5,14,21,31,35],
+  "Conformity":[7,16,28,36], "Tradition":[9,20,25,38], "Benevolence":[12,18,27,33],
+  "Universalism":[3,8,19,23,29,40]
+};
+const HIGHER_ORDER = {
+  "Openness to Change":["Self-Direction","Stimulation","Hedonism"],
+  "Self-Enhancement":["Achievement","Power"],
+  "Conservation":["Security","Conformity","Tradition"],
+  "Self-Transcendence":["Benevolence","Universalism"]
+};
+const VALUE_DESC = {
+  "Self-Direction":"Independent thought and action — choosing, creating, exploring.",
+  "Stimulation":"Excitement, novelty and challenge in life.",
+  "Hedonism":"Pleasure and enjoying life.",
+  "Achievement":"Personal success through showing competence.",
+  "Power":"Status, prestige, and influence over people and resources.",
+  "Security":"Safety, harmony and stability — for yourself and society.",
+  "Conformity":"Avoiding upsetting others or breaking social rules.",
+  "Tradition":"Respect for and commitment to customs and traditions.",
+  "Benevolence":"Caring for the welfare of people close to you.",
+  "Universalism":"Understanding, fairness and protection for all people and nature."
+};
+const VALUE_ORDER = Object.keys(VALUE_ITEMS);
+const SHORT = {"Self-Direction":"Self-\nDirection","Stimulation":"Stimulation","Hedonism":"Hedonism",
+  "Achievement":"Achieve-\nment","Power":"Power","Security":"Security","Conformity":"Conformity",
+  "Tradition":"Tradition","Benevolence":"Benevolence","Universalism":"Universalism"};
+
+// ---- state ----
+const SOURCE = (new URLSearchParams(location.search).get("source")) || "SDG";
+const answers = new Array(41).fill(null); // 1-based: answers[1..40]
+let stems = ITEMS.they;
+
+const $ = (id) => document.getElementById(id);
+function show(id){ ["intro","demo","ineligible","items","results"].forEach(s=>$(s).classList.toggle("hide", s!==id)); window.scrollTo(0,0); }
+
+// ---- intro -> demo ----
+$("toDemo").onclick = () => show("demo");
+
+// enable Continue when all three demographics chosen
+function demoReady(){ return $("gender").value && $("age").value && $("edu").value; }
+["gender","age","edu"].forEach(id => $(id).onchange = () => { $("toItems").disabled = !demoReady(); });
+
+$("toItems").onclick = () => {
+  if ($("age").value === "Under 18") { show("ineligible"); return; }
+  const g = $("gender").value;
+  stems = g === "Male" ? ITEMS.he : g === "Female" ? ITEMS.she : ITEMS.they;
+  $("itemLead").textContent = g === "Male" ? "Think about how much he is or is not like you."
+    : g === "Female" ? "Think about how much she is or is not like you."
+    : "Think about how much they are or are not like you.";
+  renderItems();
+  show("items");
+};
+
+// ---- render 40 items ----
+function renderItems(){
+  const list = $("itemList"); list.innerHTML = "";
+  for (let i=1; i<=40; i++){
+    const div = document.createElement("div"); div.className="item";
+    const stem = document.createElement("div"); stem.className="stem";
+    stem.innerHTML = '<span class="qno">'+i+'.</span> ' + stems[i-1];
+    const scale = document.createElement("div"); scale.className="scale";
+    ITEMS.scale.forEach((lab, k) => {
+      const o = document.createElement("div"); o.className="opt"; o.textContent = lab;
+      o.onclick = () => {
+        answers[i] = k+1;
+        Array.from(scale.children).forEach(c=>c.classList.remove("sel"));
+        o.classList.add("sel");
+        updateProgress();
+      };
+      scale.appendChild(o);
+    });
+    div.appendChild(stem); div.appendChild(scale); list.appendChild(div);
+  }
+  updateProgress();
+}
+function answeredCount(){ let n=0; for(let i=1;i<=40;i++) if(answers[i]) n++; return n; }
+function updateProgress(){
+  const n = answeredCount();
+  $("answered").textContent = n;
+  $("progfill").style.width = (n/40*100)+"%";
+  $("validateMsg").textContent = "";
+}
+
+// ---- submit ----
+$("submitBtn").onclick = () => {
+  const n = answeredCount();
+  if (n < 40){
+    $("validateMsg").textContent = "Please answer all 40 — " + (40-n) + " left.";
+    // scroll to first unanswered
+    for (let i=1;i<=40;i++){ if(!answers[i]){ $("itemList").children[i-1].scrollIntoView({behavior:"smooth",block:"center"}); break; } }
+    return;
+  }
+  const profile = score();
+  renderResults(profile);
+  show("results");
+  saveResponse();
+};
+
+// ---- scoring ----
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function score(){
+  const items = answers.slice(1,41); // 40 values 1-6
+  const mrat = mean(items);
+  const raw = {}, cen = {};
+  VALUE_ORDER.forEach(v => {
+    const m = mean(VALUE_ITEMS[v].map(k => items[k-1]));
+    raw[v] = m; cen[v] = m - mrat;
+  });
+  const ho = {};
+  Object.keys(HIGHER_ORDER).forEach(h => ho[h] = mean(HIGHER_ORDER[h].map(v => cen[v])));
+  const top3 = VALUE_ORDER.slice().sort((a,b)=>cen[b]-cen[a]).slice(0,3);
+  return { items, mrat, raw, cen, ho, top3 };
+}
+
+// ---- results UI ----
+function renderResults(p){
+  // top 3
+  const t = $("top3"); t.innerHTML="";
+  p.top3.forEach(v => {
+    const d = document.createElement("div"); d.className="vcard";
+    d.innerHTML = '<div class="vn">'+v+'</div><div class="vd">'+VALUE_DESC[v]+'</div>';
+    t.appendChild(d);
+  });
+  // higher-order diverging bars
+  const ho = $("hoChart"); ho.innerHTML="";
+  const maxAbs = Math.max(0.5, ...Object.values(p.ho).map(x=>Math.abs(x)));
+  Object.keys(HIGHER_ORDER).forEach(h => {
+    const val = p.ho[h];
+    const w = Math.min(50, Math.abs(val)/maxAbs*50);
+    const fill = val>=0
+      ? '<div class="fillpos" style="left:50%;width:'+w+'%"></div>'
+      : '<div class="fillneg" style="right:50%;width:'+w+'%"></div>';
+    const row = document.createElement("div"); row.className="ho";
+    row.innerHTML = '<div class="hol"><span>'+h+'</span><span>'+(val>=0?"+":"")+val.toFixed(2)+'</span></div>'+
+                    '<div class="track"><div class="mid"></div>'+fill+'</div>';
+    ho.appendChild(row);
+  });
+  // radar (raw means 1-6)
+  $("radar").innerHTML = radarSVG(VALUE_ORDER.map(v=>p.raw[v]), VALUE_ORDER);
+}
+
+function radarSVG(vals, labels){
+  const N=vals.length, cx=210, cy=200, R=130, min=1, max=6;
+  const ang = i => (-Math.PI/2) + i*2*Math.PI/N;
+  const rOf = v => (Math.max(min,Math.min(max,v))-min)/(max-min)*R;
+  let grid="";
+  for (let g=1; g<=5; g++){ const rr=g/5*R; let pts="";
+    for(let i=0;i<N;i++){ pts += (cx+rr*Math.cos(ang(i)))+","+(cy+rr*Math.sin(ang(i)))+" "; }
+    grid += '<polygon points="'+pts.trim()+'" fill="none" stroke="#e2e8f0" stroke-width="1"/>';
+  }
+  let axes="", labelsSvg="";
+  for(let i=0;i<N;i++){
+    const x=cx+R*Math.cos(ang(i)), y=cy+R*Math.sin(ang(i));
+    axes += '<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#e2e8f0" stroke-width="1"/>';
+    const lx=cx+(R+16)*Math.cos(ang(i)), ly=cy+(R+16)*Math.sin(ang(i));
+    const anchor = Math.abs(Math.cos(ang(i)))<0.3 ? "middle" : (Math.cos(ang(i))>0?"start":"end");
+    const parts = SHORT[labels[i]].split("\n");
+    let tspans = parts.map((pt,k)=>'<tspan x="'+lx+'" dy="'+(k===0?0:10)+'">'+pt+'</tspan>').join("");
+    labelsSvg += '<text x="'+lx+'" y="'+ly+'" font-size="9" fill="#5a6b80" text-anchor="'+anchor+'">'+tspans+'</text>';
+  }
+  let poly="";
+  for(let i=0;i<N;i++){ const rr=rOf(vals[i]); poly += (cx+rr*Math.cos(ang(i)))+","+(cy+rr*Math.sin(ang(i)))+" "; }
+  return '<svg class="radar" viewBox="0 0 420 400" role="img" aria-label="Values radar chart">'
+    + grid + axes
+    + '<polygon points="'+poly.trim()+'" fill="rgba(37,99,235,0.25)" stroke="#2563eb" stroke-width="2"/>'
+    + labelsSvg + '</svg>';
+}
+
+// ---- save (POST to Worker, with localStorage queue + retry) ----
+const QKEY = "pvq_self_queue";
+function newId(){ return SOURCE + "-" + Date.now() + "-" + Math.floor(Math.random()*9000+1000); }
+function saveResponse(){
+  const payload = {
+    event:"pvq_self", secret:ENDPOINT_SECRET,
+    response_id:newId(), ts:new Date().toISOString(), source:SOURCE,
+    gender:$("gender").value, age_band:$("age").value, education:$("edu").value,
+    items:answers.slice(1,41)
+  };
+  const q = JSON.parse(localStorage.getItem(QKEY) || "[]");
+  q.push(payload); localStorage.setItem(QKEY, JSON.stringify(q));
+  flushQueue(true);
+}
+async function flushQueue(updateNote){
+  if (!ENDPOINT_URL){ if(updateNote) $("saveNote").textContent="Your response is recorded on this device."; return; }
+  let q = JSON.parse(localStorage.getItem(QKEY) || "[]");
+  const remaining = [];
+  for (const p of q){
+    try {
+      const r = await fetch(ENDPOINT_URL, { method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" }, body:JSON.stringify(p) });
+      const j = await r.json().catch(()=>({}));
+      if (!j.ok) remaining.push(p);
+    } catch(e){ remaining.push(p); }
+  }
+  localStorage.setItem(QKEY, JSON.stringify(remaining));
+  if (updateNote){
+    $("saveNote").textContent = remaining.length
+      ? "Saved on this device — will sync when online."
+      : "Your response has been saved. Thank you!";
+  }
+}
+window.addEventListener("online", () => flushQueue(false));
+window.addEventListener("load", () => { try{ flushQueue(false); }catch(e){} });
+</script>
+</body>
+</html>
