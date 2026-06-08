@@ -22,6 +22,7 @@
   .btn.secondary { background:#fff; color:var(--navy); border:1.5px solid var(--navy); }
   label.fld { display:block; font-weight:600; margin:12px 0 5px; }
   select { width:100%; padding:11px; font-size:1rem; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  input { width:100%; padding:11px; font-size:1rem; border:1px solid var(--line); border-radius:8px; background:#fff; margin:6px 0; }
   .scale { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-top:8px; }
   .opt { border:1.5px solid var(--line); border-radius:8px; padding:8px 4px; text-align:center; cursor:pointer;
          font-size:.72rem; color:var(--muted); user-select:none; background:#fff; line-height:1.15; min-height:52px;
@@ -144,6 +145,15 @@
     <p class="note">How strongly each of the ten values describes you (1–6).</p>
     <div id="radar"></div>
 
+    <div class="card" id="emailCard">
+      <div style="font-weight:700;color:var(--navy)">Want a copy of your results?</div>
+      <p class="note">Optional — leave your name and email and we'll send your profile to you.
+      We'll only use it to send you your results.</p>
+      <input id="rname" type="text" placeholder="Your name (optional)" autocomplete="name">
+      <input id="remail" type="email" placeholder="Your email" autocomplete="email" inputmode="email">
+      <button class="btn" id="emailBtn">Email me my results</button>
+      <p class="note" id="emailMsg"></p>
+    </div>
     <div class="card"><p class="note" id="saveNote">Saving your response…</p></div>
     <p class="lead">Thank you for taking part in the Drogheda Values Survey.</p>
   </section>
@@ -330,18 +340,37 @@ function radarSVG(vals, labels){
 
 // ---- save (POST to Worker, with localStorage queue + retry) ----
 const QKEY = "pvq_self_queue";
+let lastPayload = null;
 function newId(){ return SOURCE + "-" + Date.now() + "-" + Math.floor(Math.random()*9000+1000); }
+function enqueue(p){ const q = JSON.parse(localStorage.getItem(QKEY) || "[]"); q.push(p); localStorage.setItem(QKEY, JSON.stringify(q)); }
 function saveResponse(){
-  const payload = {
+  lastPayload = {
     event:"pvq_self", secret:ENDPOINT_SECRET,
     response_id:newId(), ts:new Date().toISOString(), source:SOURCE,
+    name:"", email:"",
     gender:$("gender").value, age_band:$("age").value, education:$("edu").value,
     items:answers.slice(1,41)
   };
-  const q = JSON.parse(localStorage.getItem(QKEY) || "[]");
-  q.push(payload); localStorage.setItem(QKEY, JSON.stringify(q));
+  enqueue(lastPayload);
   flushQueue(true);
 }
+// Optional: respondent asks for a copy -> re-send the SAME response_id with name/email.
+// The Worker upserts by response_id, so this updates the existing row (no duplicate).
+$("emailBtn").onclick = () => {
+  const email = $("remail").value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    $("emailMsg").style.color = "#b91c1c";
+    $("emailMsg").textContent = "Please enter a valid email address.";
+    return;
+  }
+  if (!lastPayload) return;
+  const upd = Object.assign({}, lastPayload, { name:$("rname").value.trim(), email:email });
+  enqueue(upd);
+  $("emailMsg").style.color = "#5a6b80";
+  $("emailMsg").textContent = "Thanks — we'll send your results to " + email + ".";
+  $("remail").disabled = true; $("rname").disabled = true; $("emailBtn").disabled = true;
+  flushQueue(false);
+};
 async function flushQueue(updateNote){
   if (!ENDPOINT_URL){ if(updateNote) $("saveNote").textContent="Your response is recorded on this device."; return; }
   let q = JSON.parse(localStorage.getItem(QKEY) || "[]");
