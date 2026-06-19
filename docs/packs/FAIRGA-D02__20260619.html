@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FAIR GATE — FAIRGA-D02</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         margin: 0; background:#f7f7f7; color:#222; }
+  header { background:#2c3e50; color:#fff; padding: 10px 14px; position:sticky; top:0; z-index:10; }
+  header h1 { margin:0; font-size:16px; }
+  header .meta { font-size:12px; opacity:0.9; }
+  header .sync-pill {
+    display:inline-block; margin-top:4px; padding: 2px 8px; border-radius: 10px;
+    font-size:11px; font-weight:600; background:#7f8c8d; color:#fff;
+  }
+  header .sync-pill.synced  { background:#27ae60; }
+  header .sync-pill.pending { background:#f39c12; }
+  header .sync-pill.offline { background:#c0392b; }
+  header .sync-pill.email   { background:#34495e; }
+  #enumerator-bar {
+    background:#fff8dc; border-bottom:1px solid #e0c870; padding: 10px 14px;
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    position:sticky; top:54px; z-index:9;
+  }
+  #enumerator-bar.saved { background:#eef9ee; border-bottom-color:#bfe0bf; }
+  #enumerator-bar input {
+    flex:1; min-width: 140px; padding: 8px 10px; font-size:14px;
+    border:1px solid #999; border-radius:6px; background:#fff;
+  }
+  #enumerator-bar button {
+    padding: 8px 14px; font-size:13px; border-radius:6px;
+    border:1px solid #2c3e50; background:#fff; color:#2c3e50;
+  }
+  #enumerator-bar button.primary { background:#27ae60; color:#fff; border-color:#27ae60; }
+  #map { height: 45vh; width: 100%; }
+  .actions { display:flex; gap:8px; padding: 10px 14px; background:#fff; border-bottom:1px solid #ddd; }
+  .actions button { flex:1; padding: 10px 6px; font-size:14px; border-radius:6px; border:1px solid #2c3e50; background:#fff; color:#2c3e50; }
+  .actions button.primary { background:#27ae60; color:#fff; border-color:#27ae60; }
+  ul.stops { list-style:none; padding:0; margin:0; }
+  li.stop { background:#fff; border-bottom:1px solid #eee; padding: 10px 14px; }
+  li.stop h3 { margin:0 0 4px 0; font-size:15px; }
+  li.stop .sub { font-size:12px; color:#666; margin-bottom:6px; }
+  li.stop .directions { display:inline-block; margin: 4px 0 6px 0; font-size:13px; color:#0066cc; text-decoration:none; }
+  .start-survey {
+    display:inline-block; margin: 4px 0 8px 0; padding: 9px 14px;
+    font-size:14px; font-weight:600; color:#fff; background:#27ae60;
+    border:none; border-radius:6px; text-decoration:none;
+  }
+  .start-survey:active { background:#1e8449; }
+  .start-survey[disabled], .start-survey.disabled { background:#bdc3c7; pointer-events:none; }
+  .outcomes { display:flex; flex-wrap:wrap; gap:6px; }
+  .outcomes button { padding: 8px 10px; font-size:13px; border-radius:6px; border:1px solid #999; background:#fafafa; color:#222; position:relative; }
+  .outcomes button.active { background:#2c3e50; color:#fff; border-color:#2c3e50; }
+  .outcomes button[data-out="Completed"].active { background:#27ae60; border-color:#27ae60; }
+  .outcomes button[data-out="Refused"].active { background:#c0392b; border-color:#c0392b; }
+  .outcomes button .unsynced-dot {
+    position:absolute; top:2px; right:2px; width:6px; height:6px; border-radius:50%;
+    background:#f39c12;
+  }
+  li.stop.done { background:#eef9ee; }
+  li.stop.done h3::before { content:"✓ "; color:#27ae60; }
+  /* Flagged / closed stops — desk-review or prior field outcome.
+     Kept in the list (not hidden) so the fieldworker sees them, but visually
+     muted and without outcome buttons so existing closures (notes especially)
+     are not accidentally overwritten. */
+  li.stop.closed { background:#f6f5f1; border-left:4px solid #c0392b; opacity:0.85; }
+  li.stop.closed h3 { color:#7c7c7c; text-decoration:line-through; }
+  li.stop.closed h3::before { content:""; }
+  .closed-badge { display:block; margin-top:6px; padding:6px 8px;
+    background:#fef2f2; border:1px solid #fecaca; border-radius:4px;
+    font-size:0.82rem; color:#6b1f1f; }
+  .closed-badge.vacant   { background:#fef9e7; border-color:#fde68a; color:#92400e; }
+  .closed-badge.flyer    { background:#eff6ff; border-color:#bfdbfe; color:#1e40af; }
+  .closed-badge.completed{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .closed-badge .who   { font-weight:600; }
+  .closed-badge .note  { display:block; margin-top:3px; font-style:italic; color:inherit; opacity:0.85; }
+  .stop-notes {
+    display:block; width:100%; margin-top:8px; padding:6px 8px;
+    font: 13px/1.35 inherit; color:#222; background:#fafafa;
+    border:1px solid #ccc; border-radius:6px; resize:vertical; min-height:30px;
+    box-sizing:border-box;
+  }
+  .stop-notes:focus { outline:2px solid #2c3e50; outline-offset:-1px; background:#fff; }
+  .stop-notes.dirty { border-color:#f39c12; background:#fff8e6; }
+  details.reserves { background:#fff; padding: 10px 14px; }
+  details.reserves summary { font-weight:600; padding: 6px 0; }
+  footer { padding: 14px; text-align:center; color:#888; font-size:11px; }
+  .pin {
+    background:#c0392b; color:#fff; border-radius:50%; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;
+    border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+  .pin.reserve { background:#7f8c8d; width:16px; height:16px; font-size:9px; }
+  /* Labels drawn at the centre of each picked-building polygon. Rendered as
+     a small filled circle so the number stays legible at any zoom — at high
+     zoom you see the polygon fill plus the badge inside it; at low zoom the
+     polygon shrinks to a dot and the fixed-size badge does the visual work. */
+  .leaflet-tooltip.poly-label {
+    background: #c0392b; color: #fff;
+    border: 2px solid #fff; border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,.45);
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px;
+    padding: 0; line-height: 1; pointer-events: none;
+  }
+  .leaflet-tooltip.poly-label::before { display: none; }
+  .leaflet-tooltip.poly-label.reserve {
+    background: #7f8c8d;
+    width: 16px; height: 16px;
+    font-size: 9px;
+    border-width: 1.5px;
+  }
+  .leaflet-control-layers-expanded { padding: 6px 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>FAIR GATE &middot; Pack FAIRGA-D02</h1>
+  <div class="meta">Date: 2026-06-19 &middot; 25 stops &middot; No quota gate &mdash; offer link to everyone who answers</div>
+  <span class="sync-pill" id="sync-pill">…</span>
+</header>
+
+<div id="enumerator-bar">
+  <strong id="enum-prompt">Enumerator:</strong>
+  <input id="enum-input" type="text" placeholder="Type your name and tap Save" autocomplete="off" autocapitalize="words">
+  <span id="enum-display" style="display:none;"></span>
+  <button id="enum-save" class="primary">Save</button>
+  <button id="enum-edit" style="display:none;">edit</button>
+</div>
+
+<div id="map"></div>
+
+<div class="actions">
+  <button id="copy-btn">Copy outcomes (CSV)</button>
+  <button id="email-btn" class="primary">Email outcomes</button>
+  <button id="reset-btn">Reset</button>
+</div>
+
+<ul id="stops" class="stops"></ul>
+
+<details class="reserves">
+  <summary>Reserve addresses (release if today's list is exhausted)</summary>
+  <ul id="reserves" class="stops"></ul>
+</details>
+
+<footer>
+  Drogheda PVQ field pack v3 &middot; generated 2026-06-19 15:40 &middot;
+  Outcomes sync live to the Google Sheet as you tap. Offline taps queue and resend automatically.
+</footer>
+
+<script>
+const PACK_ID         = "FAIRGA-D02";
+const PACK_DATE       = "2026-06-19";
+const STOPS           = [{"sample_id":"DRG-2-7771","building_id":"multipolygon/1348530129","order":1,"address":"The Sycamores","eircode":"","lat":53.7181,"lon":-6.3365,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7762","building_id":"multipolygon/796315377","order":2,"address":"The Sycamores","eircode":"","lat":53.7183,"lon":-6.3356,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7763","building_id":"multipolygon/796315378","order":3,"address":"The Sycamores","eircode":"","lat":53.7183,"lon":-6.3352,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7764","building_id":"multipolygon/796315379","order":4,"address":"The Sycamores","eircode":"","lat":53.7184,"lon":-6.3349,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7765","building_id":"multipolygon/796315380","order":5,"address":"The Sycamores","eircode":"","lat":53.7185,"lon":-6.3342,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7766","building_id":"multipolygon/796315381","order":6,"address":"The Sycamores","eircode":"","lat":53.7185,"lon":-6.3339,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7770","building_id":"multipolygon/1348528896","order":7,"address":"The Sycamores","eircode":"","lat":53.7185,"lon":-6.3338,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Joao,Alice,Bobby and Wiza","closed_note":""},{"sample_id":"DRG-2-7772","building_id":"multipolygon/1474082502","order":8,"address":"The Sycamores","eircode":"","lat":53.7188,"lon":-6.3342,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7768","building_id":"multipolygon/1348528891","order":9,"address":"The Sycamores","eircode":"","lat":53.719,"lon":-6.334,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7769","building_id":"multipolygon/1348528892","order":10,"address":"The Sycamores","eircode":"","lat":53.719,"lon":-6.3339,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7773","building_id":"multipolygon/1348528893","order":11,"address":"The Sycamores","eircode":"","lat":53.719,"lon":-6.3339,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Joao","closed_note":""},{"sample_id":"DRG-2-7774","building_id":"multipolygon/1348528894","order":12,"address":"The Sycamores","eircode":"","lat":53.7191,"lon":-6.3338,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Completed","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7775","building_id":"multipolygon/1348528895","order":13,"address":"The Sycamores","eircode":"","lat":53.7191,"lon":-6.3338,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Completed","closed_enumerator":"Joao,Alice,Bobby and Wiza","closed_note":""},{"sample_id":"DRG-2-7777","building_id":"multipolygon/1348528890","order":14,"address":"The Sycamores","eircode":"","lat":53.7191,"lon":-6.3337,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"No answer","closed_enumerator":"Bobby And Wiza","closed_note":""},{"sample_id":"DRG-2-7778","building_id":"multipolygon/796311876","order":15,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3336,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7779","building_id":"multipolygon/796311877","order":16,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3335,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Completed","closed_enumerator":"Bobby And Wiza","closed_note":""},{"sample_id":"DRG-2-7781","building_id":"multipolygon/1348528889","order":17,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3334,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7784","building_id":"multipolygon/796311878","order":18,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3333,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7785","building_id":"multipolygon/796311879","order":19,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3332,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Refused","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7786","building_id":"multipolygon/1348528888","order":20,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3332,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Completed","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7780","building_id":"multipolygon/796311903","order":21,"address":"The Sycamores","eircode":"","lat":53.7188,"lon":-6.3333,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Joao,Alice,Bobby and Wiza","closed_note":""},{"sample_id":"DRG-2-7783","building_id":"multipolygon/883597427","order":22,"address":"The Sycamores","eircode":"","lat":53.7186,"lon":-6.3331,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7782","building_id":"multipolygon/796311905","order":23,"address":"The Sycamores","eircode":"","lat":53.7186,"lon":-6.3331,"ed_name":"FAIR GATE","cluster_id":2,"closed":true,"closed_outcome":"Flyer given","closed_enumerator":"Eolain","closed_note":""},{"sample_id":"DRG-2-7776","building_id":"multipolygon/796313785","order":24,"address":"The Sycamores","eircode":"","lat":53.7196,"lon":-6.3338,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7767","building_id":"multipolygon/883568627","order":25,"address":"The Sycamores","eircode":"","lat":53.7189,"lon":-6.3352,"ed_name":"FAIR GATE","cluster_id":2,"closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const RESERVES        = [{"sample_id":"DRG-2-7861","building_id":"multipolygon/1348528887","order":1,"address":"The Sycamores","eircode":"","lat":53.7195,"lon":-6.333,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7862","building_id":"multipolygon/796311880","order":2,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3329,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7863","building_id":"multipolygon/796309842","order":3,"address":"The Sycamores","eircode":"","lat":53.7195,"lon":-6.3329,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7864","building_id":"multipolygon/1348528885","order":4,"address":"The Sycamores","eircode":"","lat":53.7196,"lon":-6.3328,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7865","building_id":"multipolygon/796311881","order":5,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3328,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7866","building_id":"multipolygon/796311882","order":6,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3327,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7867","building_id":"multipolygon/1348528884","order":7,"address":"The Sycamores","eircode":"","lat":53.7197,"lon":-6.3326,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7868","building_id":"multipolygon/884488970","order":8,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3324,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7869","building_id":"multipolygon/883597423","order":9,"address":"The Sycamores","eircode":"","lat":53.7191,"lon":-6.3325,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""},{"sample_id":"DRG-2-7870","building_id":"multipolygon/796311883","order":10,"address":"The Sycamores","eircode":"","lat":53.7192,"lon":-6.3322,"ed_name":"FAIR GATE","cluster_id":"NA","closed":false,"closed_outcome":"","closed_enumerator":"","closed_note":""}];
+const POLYGONS        = {"type": "FeatureCollection","name": "file185b431ca207a","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "building_id": "multipolygon/796309842", "label": "R3", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3329673, 53.7195149 ], [ -6.3328965, 53.7195631 ], [ -6.3327825, 53.7195043 ], [ -6.3328533, 53.7194562 ], [ -6.3329673, 53.7195149 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311876", "label": "15", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3336322, 53.7191791 ], [ -6.3335236, 53.7192085 ], [ -6.3335153, 53.7191378 ], [ -6.3335925, 53.7191158 ], [ -6.3336322, 53.7191791 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311877", "label": "16", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3333995, 53.7192137 ], [ -6.3333911, 53.719143 ], [ -6.3335153, 53.7191378 ], [ -6.3335236, 53.7192085 ], [ -6.3333995, 53.7192137 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311878", "label": "18", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.333334, 53.7192156 ], [ -6.3332683, 53.7192177 ], [ -6.3332598, 53.7191493 ], [ -6.3333275, 53.719146 ], [ -6.333334, 53.7192156 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311879", "label": "19", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3332683, 53.7192177 ], [ -6.3332037, 53.7192205 ], [ -6.3331952, 53.7191521 ], [ -6.3332598, 53.7191493 ], [ -6.3332683, 53.7192177 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311880", "label": "R2", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3328547, 53.7192412 ], [ -6.3328408, 53.7191738 ], [ -6.3329788, 53.7191639 ], [ -6.3329811, 53.7191776 ], [ -6.3329896, 53.7192303 ], [ -6.3328547, 53.7192412 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311881", "label": "R5", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3327203, 53.7192509 ], [ -6.3327064, 53.7191835 ], [ -6.3328408, 53.7191738 ], [ -6.3328547, 53.7192412 ], [ -6.3327203, 53.7192509 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311882", "label": "R6", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3326004, 53.7192596 ], [ -6.3325865, 53.7191922 ], [ -6.3327064, 53.7191835 ], [ -6.3327203, 53.7192509 ], [ -6.3326004, 53.7192596 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311883", "label": "R10", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3320712, 53.7192622 ], [ -6.3321296, 53.7192805 ], [ -6.3322733, 53.719281 ], [ -6.3322661, 53.7192122 ], [ -6.3321507, 53.7191998 ], [ -6.3320712, 53.7192622 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311903", "label": "21", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3333768, 53.718871 ], [ -6.3332481, 53.7188829 ], [ -6.3332304, 53.7188162 ], [ -6.3333592, 53.7188043 ], [ -6.3333768, 53.718871 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796311905", "label": "23", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3331942, 53.7185475 ], [ -6.3332077, 53.7186002 ], [ -6.3330749, 53.7186121 ], [ -6.3330614, 53.7185594 ], [ -6.3331942, 53.7185475 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796313785", "label": "24", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3338584, 53.7196459 ], [ -6.3336494, 53.7196176 ], [ -6.3336816, 53.7195343 ], [ -6.3338906, 53.7195626 ], [ -6.3338584, 53.7196459 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796315377", "label": "2", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3353964, 53.7183547 ], [ -6.3353596, 53.7182754 ], [ -6.3353849, 53.7182712 ], [ -6.335363, 53.7182237 ], [ -6.3356152, 53.7181827 ], [ -6.3356318, 53.7182187 ], [ -6.3356873, 53.7183382 ], [ -6.3355463, 53.7183611 ], [ -6.335533, 53.7183325 ], [ -6.3353964, 53.7183547 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796315378", "label": "3", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3353699, 53.7183638 ], [ -6.3352239, 53.7183864 ], [ -6.3352335, 53.7184081 ], [ -6.3351012, 53.7184285 ], [ -6.3350319, 53.7182718 ], [ -6.3352824, 53.7182331 ], [ -6.335307, 53.7182888 ], [ -6.3353349, 53.7182846 ], [ -6.3353699, 53.7183638 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796315379", "label": "4", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3350774, 53.7184435 ], [ -6.3347575, 53.7184824 ], [ -6.3347253, 53.7183899 ], [ -6.3347656, 53.718385 ], [ -6.3347454, 53.7183269 ], [ -6.3349811, 53.7182982 ], [ -6.3349998, 53.7183518 ], [ -6.3350254, 53.7183487 ], [ -6.3350413, 53.7183944 ], [ -6.3350595, 53.7183922 ], [ -6.3350774, 53.7184435 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796315380", "label": "5", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3342574, 53.7184652 ], [ -6.3342862, 53.7185809 ], [ -6.3341722, 53.7185909 ], [ -6.3341199, 53.7183812 ], [ -6.3342339, 53.7183712 ], [ -6.3342574, 53.7184652 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/796315381", "label": "6", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3339442, 53.7185229 ], [ -6.3338559, 53.7185351 ], [ -6.3338253, 53.7184579 ], [ -6.3339136, 53.7184456 ], [ -6.3339442, 53.7185229 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/883568627", "label": "25", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3352168, 53.7189564 ], [ -6.3351289, 53.7189425 ], [ -6.3351531, 53.7188889 ], [ -6.3352409, 53.7189028 ], [ -6.3352168, 53.7189564 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/883597423", "label": "R9", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3325098, 53.7191674 ], [ -6.3324006, 53.7191716 ], [ -6.3323957, 53.719131 ], [ -6.3325049, 53.7191264 ], [ -6.3325098, 53.7191674 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/883597427", "label": "22", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3332077, 53.7186002 ], [ -6.3332212, 53.7186529 ], [ -6.3330884, 53.7186648 ], [ -6.3330749, 53.7186121 ], [ -6.3332077, 53.7186002 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/884488970", "label": "R8", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3322733, 53.719281 ], [ -6.3324598, 53.7192742 ], [ -6.3324529, 53.7192078 ], [ -6.3324046, 53.7192095 ], [ -6.3324006, 53.7191716 ], [ -6.3323216, 53.7191745 ], [ -6.3323253, 53.71921 ], [ -6.3322661, 53.7192122 ], [ -6.3322733, 53.719281 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528884", "label": "R7", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.332744, 53.719679 ], [ -6.3326809, 53.7197239 ], [ -6.3325531, 53.7196609 ], [ -6.3326162, 53.7196161 ], [ -6.332744, 53.719679 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528885", "label": "R4", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3328965, 53.7195631 ], [ -6.3328257, 53.7196112 ], [ -6.3327117, 53.7195524 ], [ -6.3327825, 53.7195043 ], [ -6.3328965, 53.7195631 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528887", "label": "R1", "kind": "reserve", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3330896, 53.7195092 ], [ -6.3329922, 53.7195163 ], [ -6.3329734, 53.7194258 ], [ -6.3330708, 53.7194187 ], [ -6.3330896, 53.7195092 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528888", "label": "20", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3332037, 53.7192205 ], [ -6.3331392, 53.7192233 ], [ -6.3331307, 53.7191549 ], [ -6.3331952, 53.7191521 ], [ -6.3332037, 53.7192205 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528889", "label": "17", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3333275, 53.719146 ], [ -6.3333911, 53.719143 ], [ -6.3333995, 53.7192137 ], [ -6.333334, 53.7192156 ], [ -6.3333275, 53.719146 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528890", "label": "14", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3335925, 53.7191158 ], [ -6.3336666, 53.7190949 ], [ -6.3337334, 53.7191519 ], [ -6.3336322, 53.7191791 ], [ -6.3335925, 53.7191158 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528891", "label": "9", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3339409, 53.7189821 ], [ -6.3339958, 53.7189596 ], [ -6.3340626, 53.7190166 ], [ -6.3340077, 53.7190391 ], [ -6.3339409, 53.7189821 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528892", "label": "10", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.333886, 53.7190047 ], [ -6.3339409, 53.7189821 ], [ -6.3340077, 53.7190391 ], [ -6.3339528, 53.7190617 ], [ -6.333886, 53.7190047 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528893", "label": "11", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3338312, 53.7190272 ], [ -6.333886, 53.7190047 ], [ -6.3339528, 53.7190617 ], [ -6.333898, 53.7190842 ], [ -6.3338312, 53.7190272 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528894", "label": "12", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3337763, 53.7190498 ], [ -6.3338312, 53.7190272 ], [ -6.333898, 53.7190842 ], [ -6.3338431, 53.7191068 ], [ -6.3337763, 53.7190498 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528895", "label": "13", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3337214, 53.7190723 ], [ -6.3337763, 53.7190498 ], [ -6.3338431, 53.7191068 ], [ -6.3337882, 53.7191293 ], [ -6.3337214, 53.7190723 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348528896", "label": "7", "kind": "primary", "closed": true }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3338559, 53.7185351 ], [ -6.3337676, 53.7185474 ], [ -6.3337371, 53.7184701 ], [ -6.3338253, 53.7184579 ], [ -6.3338559, 53.7185351 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1348530129", "label": "1", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3367348, 53.7179701 ], [ -6.3363189, 53.7180144 ], [ -6.3363621, 53.7181563 ], [ -6.3367779, 53.7181121 ], [ -6.3367348, 53.7179701 ] ] ] ] } },{ "type": "Feature", "properties": { "building_id": "multipolygon/1474082502", "label": "8", "kind": "primary", "closed": false }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -6.3342789, 53.7188242 ], [ -6.334199, 53.7188562 ], [ -6.3341145, 53.7187825 ], [ -6.3341944, 53.7187505 ], [ -6.3342789, 53.7188242 ] ] ] ] } }]};
+const QUALTRICS_BASE  = "https://qualtricsxm97y29yf7q.qualtrics.com/jfe/form/SV_6Pt73vEl5B49ot8";
+const ENDPOINT_URL    = "https://pvq-field-webhook.joao-dlima.workers.dev";
+const ENDPOINT_SECRET = "b31a68e624969d55d4f17607eb04396d";
+const COORDINATOR_EMAIL = "joao@developmentperspectives.ie";
+const OUTCOMES = ["No answer","Refused","Completed","Flyer given","Vacant","Not residential","Revisit"];
+
+// -------- Enumerator (runtime, stored in localStorage) --------
+const ENUM_KEY = "pvq_enumerator";
+const OPEN_PING_KEY = "pvq_last_open_ping_" + PACK_ID;
+function getEnumerator(){ return localStorage.getItem(ENUM_KEY) || ""; }
+function setEnumerator(name){
+  localStorage.setItem(ENUM_KEY, name);
+  renderEnumeratorBar();
+  renderStops();        // survey URLs depend on enumerator
+  renderSyncPill();
+  pingOpen(true);       // forced ping on every save
+}
+function renderEnumeratorBar(){
+  const name = getEnumerator();
+  const bar    = document.getElementById("enumerator-bar");
+  const input  = document.getElementById("enum-input");
+  const display= document.getElementById("enum-display");
+  const save   = document.getElementById("enum-save");
+  const edit   = document.getElementById("enum-edit");
+  if (name) {
+    bar.classList.add("saved");
+    input.style.display = "none";
+    save.style.display = "none";
+    display.style.display = "";
+    display.textContent = " " + name;
+    edit.style.display = "";
+  } else {
+    bar.classList.remove("saved");
+    input.style.display = "";
+    save.style.display = "";
+    display.style.display = "none";
+    edit.style.display = "none";
+    input.value = "";
+  }
+}
+
+// -------- Stops state (outcomes) --------
+// state[sample_id] = { outcome, ts, enumerator, synced }
+const STORAGE_KEY = "pvq_outcomes_" + PACK_ID + "_" + PACK_DATE;
+function loadState(){
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    // Backfill missing fields from older state shapes
+    Object.keys(s).forEach(k => {
+      if (typeof s[k].synced     === "undefined") s[k].synced = false;
+      if (typeof s[k].enumerator === "undefined") s[k].enumerator = getEnumerator();
+      if (typeof s[k].notes      === "undefined") s[k].notes = "";
+    });
+    return s;
+  } catch(e){ return {}; }
+}
+function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function dirHref(lat, lon){
+  return "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lon + "&travelmode=walking";
+}
+
+function surveyUrl(stop){
+  if (!QUALTRICS_BASE) return "";
+  const params = new URLSearchParams({
+    sample_id: stop.sample_id,
+    pack: PACK_ID,
+    enumerator: getEnumerator(),
+    ed_name: stop.ed_name || "",
+    cluster_id: (stop.cluster_id == null ? "" : String(stop.cluster_id))
+  });
+  return QUALTRICS_BASE + "?" + params.toString();
+}
+
+function renderStops(){
+  const ul = document.getElementById("stops");
+  ul.innerHTML = "";
+  STOPS.forEach(s => {
+    const li = document.createElement("li");
+    const cls = ["stop"];
+    if (s.closed)            cls.push("closed");
+    else if (state[s.sample_id]) cls.push("done");
+    li.className = cls.join(" ");
+    li.id = "stop-" + s.sample_id;
+    const subParts = [];
+    if (s.eircode) subParts.push("Eircode " + s.eircode);
+    subParts.push(s.lat.toFixed(5) + ", " + s.lon.toFixed(5));
+    const h3 = document.createElement("h3");
+    h3.textContent = s.order + ". " + s.address;
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = subParts.join(" · ");
+    const a = document.createElement("a");
+    a.className = "directions";
+    a.href = dirHref(s.lat, s.lon);
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Directions ▸";
+
+    const survey = document.createElement("a");
+    survey.className = "start-survey" + (QUALTRICS_BASE ? "" : " disabled");
+    survey.href = QUALTRICS_BASE ? surveyUrl(s) : "#";
+    survey.target = "_blank";
+    survey.rel = "noopener";
+    survey.textContent = QUALTRICS_BASE ? "▶ Start survey on this device" : "(survey URL not configured)";
+
+    const outsDiv = document.createElement("div");
+    outsDiv.className = "outcomes";
+    OUTCOMES.forEach(o => {
+      const b = document.createElement("button");
+      b.dataset.sid = s.sample_id;
+      b.dataset.out = o;
+      b.textContent = o;
+      const entry = state[s.sample_id];
+      if (entry && entry.outcome === o) {
+        b.classList.add("active");
+        if (!entry.synced) {
+          const dot = document.createElement("span");
+          dot.className = "unsynced-dot";
+          dot.title = "Not yet synced";
+          b.appendChild(dot);
+        }
+      }
+      outsDiv.appendChild(b);
+    });
+
+    // Notes textarea — per-house freetext, persisted in localStorage.
+    // The value can live in two places:
+    //   (a) state[sample_id].notes — if an outcome has been tapped for this house
+    //   (b) the pendingNotes stash  — if not yet tapped (note typed standalone)
+    // Read from both so the textarea always shows what the user typed last.
+    let prefillNote = "";
+    if (state[s.sample_id] && state[s.sample_id].notes) {
+      prefillNote = state[s.sample_id].notes;
+    } else {
+      try {
+        const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+        prefillNote = stash[s.sample_id] || "";
+      } catch(_) {}
+    }
+    const notesEl = document.createElement("textarea");
+    notesEl.className = "stop-notes" + (prefillNote && (!state[s.sample_id] || !state[s.sample_id].synced) ? " dirty" : "");
+    notesEl.dataset.sid = s.sample_id;
+    notesEl.rows = 2;
+    notesEl.placeholder = "Notes about this house (optional)";
+    notesEl.value = prefillNote;
+
+    li.appendChild(h3);
+    li.appendChild(sub);
+    li.appendChild(a);
+    li.appendChild(document.createElement("br"));
+    li.appendChild(survey);
+    // For closed/flagged stops, show a badge with the prior closure reason
+    // (colour-coded), but keep ALL interactive controls active — survey link,
+    // outcome buttons, notes textarea — so the fieldworker can override if
+    // they verify the address in person.
+    if (s.closed) {
+      const badge = document.createElement("div");
+      const outcomeLower = (s.closed_outcome || "").toLowerCase();
+      badge.className = "closed-badge" +
+        (outcomeLower.indexOf("vacant") >= 0       ? " vacant" :
+         outcomeLower.indexOf("flyer")  >= 0       ? " flyer"  :
+         outcomeLower === "completed"              ? " completed" : "");
+      let inner = "🚫 <strong>Flagged:</strong> " +
+        (s.closed_outcome || "(unknown)");
+      if (s.closed_note) {
+        inner += '<span class="note">"' + s.closed_note.replace(/"/g,"&quot;") + '"</span>';
+      }
+      badge.innerHTML = inner;
+      li.appendChild(badge);
+    }
+    li.appendChild(outsDiv);
+    li.appendChild(notesEl);
+    ul.appendChild(li);
+  });
+}
+
+function renderReserves(){
+  const ul = document.getElementById("reserves");
+  ul.innerHTML = "";
+  RESERVES.forEach((s,i) => {
+    const li = document.createElement("li");
+    li.className = "stop";
+    const subParts = [];
+    if (s.eircode) subParts.push("Eircode " + s.eircode);
+    subParts.push(s.lat.toFixed(5) + ", " + s.lon.toFixed(5));
+    const h3 = document.createElement("h3");
+    h3.textContent = "R" + (i+1) + ". " + s.address;
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = subParts.join(" · ");
+    const a = document.createElement("a");
+    a.className = "directions";
+    a.href = dirHref(s.lat, s.lon);
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Directions ▸";
+    li.appendChild(h3); li.appendChild(sub); li.appendChild(a);
+    ul.appendChild(li);
+  });
+}
+
+// -------- Sync engine --------
+function countUnsynced(){
+  return Object.keys(state).filter(k => !state[k].synced).length;
+}
+function renderSyncPill(){
+  const pill = document.getElementById("sync-pill");
+  if (!ENDPOINT_URL) {
+    pill.className = "sync-pill email";
+    pill.textContent = "Email-only mode";
+    return;
+  }
+  const n = countUnsynced();
+  if (!navigator.onLine) {
+    pill.className = "sync-pill offline";
+    pill.textContent = "Offline" + (n ? " · " + n + " pending" : "");
+  } else if (n > 0) {
+    pill.className = "sync-pill pending";
+    pill.textContent = n + " pending";
+  } else {
+    pill.className = "sync-pill synced";
+    pill.textContent = "Synced ✓";
+  }
+}
+
+async function postJson(payload){
+  // text/plain to avoid CORS preflight — Apps Script accepts JSON body.
+  const r = await fetch(ENDPOINT_URL, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload),
+    redirect: "follow",
+    keepalive: true
+  });
+  return r.json();
+}
+
+async function syncEntry(sample_id){
+  if (!ENDPOINT_URL) return;
+  const e = state[sample_id];
+  if (!e || e.synced) return;
+  try {
+    const j = await postJson({
+      event: "outcome",
+      secret: ENDPOINT_SECRET,
+      pack_id: PACK_ID,
+      pack_date: PACK_DATE,
+      sample_id: sample_id,
+      enumerator: e.enumerator || getEnumerator(),
+      outcome: e.outcome,
+      attempt_ts: e.ts,
+      notes: e.notes || ""
+    });
+    if (j && j.ok) {
+      e.synced = true;
+      saveState(state);
+      renderSyncPill();
+      markSyncedDOM(sample_id);   // targeted update — does NOT rebuild textareas
+    }
+  } catch(err) {
+    // Stay unsynced; will retry on next trigger.
+  }
+}
+
+// Surgical DOM update for a single stop after its outcome has synced.
+// Removes the orange "unsynced" dot and amber border on the notes box,
+// without rebuilding the textarea (which would interrupt anyone mid-typing).
+function markSyncedDOM(sid){
+  const li = document.getElementById("stop-" + sid);
+  if (!li) return;
+  const dot = li.querySelector(".outcomes button.active .unsynced-dot");
+  if (dot) dot.remove();
+  const note = li.querySelector(".stop-notes");
+  if (note) note.classList.remove("dirty");
+}
+function flushUnsynced(){
+  Object.keys(state).forEach(syncEntry);
+}
+
+// Throttled "pack opened" ping. forced=true bypasses the 1h throttle.
+async function pingOpen(forced){
+  if (!ENDPOINT_URL) return;
+  const name = getEnumerator();
+  if (!name) return;
+  const last = parseInt(localStorage.getItem(OPEN_PING_KEY) || "0", 10);
+  const now  = Date.now();
+  if (!forced && (now - last) < 3600 * 1000) return;
+  try {
+    await postJson({
+      event: "open",
+      secret: ENDPOINT_SECRET,
+      pack_id: PACK_ID,
+      pack_date: PACK_DATE,
+      enumerator: name,
+      ts: new Date().toISOString(),
+      user_agent: navigator.userAgent
+    });
+    localStorage.setItem(OPEN_PING_KEY, String(now));
+  } catch(err) { /* non-fatal */ }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) { flushUnsynced(); pingOpen(false); renderSyncPill(); }
+});
+window.addEventListener("online",  () => { flushUnsynced(); renderSyncPill(); });
+window.addEventListener("offline", renderSyncPill);
+
+// -------- Outcome button clicks --------
+document.addEventListener("click", e => {
+  if (e.target.matches(".outcomes button")) {
+    const name = getEnumerator();
+    if (!name) {
+      alert("Please type your name in the Enumerator box at the top and tap Save before recording outcomes.");
+      document.getElementById("enum-input").focus();
+      return;
+    }
+    const sid = e.target.dataset.sid;
+    const out = e.target.dataset.out;
+    // Re-tapping the same outcome is a no-op (prevents accidental erasure
+    // and keeps the Sheet's upsert key clean).
+    if (state[sid] && state[sid].outcome === out) return;
+    // Pull any pending note that was typed before an outcome was tapped.
+    let pending = "";
+    try {
+      const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+      pending = stash[sid] || "";
+      if (stash[sid]) { delete stash[sid]; localStorage.setItem(STORAGE_KEY + "_pendingNotes", JSON.stringify(stash)); }
+    } catch(_) {}
+    const existingNotes = (state[sid] && state[sid].notes) || pending || "";
+    state[sid] = {
+      outcome: out,
+      ts: new Date().toISOString(),
+      enumerator: name,
+      synced: false,
+      notes: existingNotes
+    };
+    saveState(state);
+    renderStops();
+    renderSyncPill();
+    syncEntry(sid);
+  }
+});
+
+// -------- Notes textarea: save locally on every change, sync on blur --------
+document.addEventListener("input", e => {
+  if (!e.target.matches(".stop-notes")) return;
+  const sid = e.target.dataset.sid;
+  const v   = e.target.value;
+  const existing = state[sid];
+  if (existing) {
+    if (existing.notes !== v) {
+      existing.notes  = v;
+      existing.synced = false;
+      saveState(state);
+      e.target.classList.add("dirty");
+      renderSyncPill();
+    }
+  } else {
+    // No outcome yet — stash the note locally but do not create a state entry
+    // (a state row without an outcome would write a blank-outcome row to the
+    // Sheet, which is misleading). The note will attach when an outcome is tapped.
+    const stash = JSON.parse(localStorage.getItem(STORAGE_KEY + "_pendingNotes") || "{}");
+    stash[sid] = v;
+    localStorage.setItem(STORAGE_KEY + "_pendingNotes", JSON.stringify(stash));
+    e.target.classList.toggle("dirty", v.length > 0);
+  }
+});
+document.addEventListener("blur", e => {
+  if (!e.target.matches(".stop-notes")) return;
+  const sid = e.target.dataset.sid;
+  if (state[sid] && !state[sid].synced) {
+    syncEntry(sid).then(() => {
+      if (state[sid] && state[sid].synced) e.target.classList.remove("dirty");
+    });
+  }
+}, true);
+
+// -------- Enumerator bar interactions --------
+document.getElementById("enum-save").addEventListener("click", () => {
+  const v = document.getElementById("enum-input").value.trim();
+  if (!v) { alert("Please type your name first."); return; }
+  setEnumerator(v);
+});
+document.getElementById("enum-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); document.getElementById("enum-save").click(); }
+});
+document.getElementById("enum-edit").addEventListener("click", () => {
+  localStorage.removeItem(ENUM_KEY);
+  renderEnumeratorBar();
+  document.getElementById("enum-input").focus();
+});
+
+// -------- CSV export (clipboard + email) --------
+function csvOutcomes(){
+  const header = "sample_id,pack_id,enumerator,attempt_date,attempt_time,outcome,notes";
+  function csvCell(v){
+    v = (v == null ? "" : String(v));
+    if (/[",\n\r]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }
+  const rows = Object.entries(state).map(function(kv){
+    const sid = kv[0], v = kv[1];
+    const d = new Date(v.ts);
+    const date = d.toISOString().slice(0,10);
+    const time = d.toISOString().slice(11,16);
+    return [sid, PACK_ID, v.enumerator || getEnumerator(), date, time, v.outcome, v.notes || ""].map(csvCell).join(",");
+  });
+  return header + "\n" + rows.join("\n");
+}
+
+document.getElementById("copy-btn").addEventListener("click", async () => {
+  const csv = csvOutcomes();
+  try {
+    await navigator.clipboard.writeText(csv);
+    alert("Outcomes copied to clipboard.\n\n" + Object.keys(state).length + " rows.");
+  } catch(e) {
+    prompt("Copy this CSV manually:", csv);
+  }
+});
+
+document.getElementById("email-btn").addEventListener("click", () => {
+  const csv = csvOutcomes();
+  const subject = "PVQ outcomes – " + PACK_ID + " – " + PACK_DATE + " – " + (getEnumerator() || "(no name)");
+  const body = csv;
+  const to = encodeURIComponent(COORDINATOR_EMAIL || "");
+  location.href = "mailto:" + to +
+    "?subject=" + encodeURIComponent(subject) +
+    "&body="    + encodeURIComponent(body);
+});
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  if (confirm("Clear all outcomes for this pack? This cannot be undone.")) {
+    state = {};
+    saveState(state);
+    renderStops();
+    renderSyncPill();
+  }
+});
+
+// -------- Boot --------
+renderEnumeratorBar();
+renderStops();
+renderReserves();
+renderSyncPill();
+flushUnsynced();
+pingOpen(false);
+
+const map = L.map("map").setView([53.718853, -6.3340011], 16);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap contributors"
+}).addTo(map);
+
+// Picked buildings' polygons ARE the markers — filled red (primary) or grey
+// (reserve), with the stop number rendered as a tooltip in the polygon's
+// centre. Eliminates the pin-overlap problem on tight terraces because each
+// polygon is a distinct shape.
+const POLY_BIDS = new Set();
+if (POLYGONS && POLYGONS.features && POLYGONS.features.length > 0) {
+  L.geoJSON(POLYGONS, {
+    style: function(f) {
+      const isReserve = f.properties.kind === "reserve";
+      return {
+        color: "#fff",
+        weight: 1.5,
+        fillColor: isReserve ? "#7f8c8d" : "#c0392b",
+        fillOpacity: 0.85
+      };
+    },
+    onEachFeature: function(f, layer) {
+      POLY_BIDS.add(f.properties.building_id);
+      const cls = "poly-label" + (f.properties.kind === "reserve" ? " reserve" : "");
+      layer.bindTooltip(String(f.properties.label), {
+        permanent: true,
+        direction: "center",
+        className: cls,
+        opacity: 1
+      });
+    }
+  }).addTo(map);
+}
+
+function pinIcon(label, reserve){
+  const sz = reserve ? 16 : 22;
+  return L.divIcon({
+    className: "",
+    iconSize: [sz, sz],
+    iconAnchor: [sz/2, sz/2],
+    html: '<div class="pin' + (reserve ? " reserve" : "") + '">' + label + '</div>'
+  });
+}
+
+function popupHtml(s){
+  return "<strong>" + s.order + ". " + s.address + "</strong><br>" +
+    (s.eircode ? "Eircode " + s.eircode + "<br>" : "") +
+    '<a href="' + dirHref(s.lat, s.lon) + '" target="_blank" rel="noopener">Directions ▸</a><br>' +
+    '<a href="#stop-' + s.sample_id + '">Jump to row ▸</a>';
+}
+
+const bounds = [];
+STOPS.forEach(s => {
+  // If this building has a polygon on the map, the polygon IS the marker —
+  // skip the pin circle (avoids overlapping pins on dense terraces). Bind
+  // the popup to the polygon instead, by stop building_id.
+  if (POLY_BIDS.has(s.building_id)) {
+    // Polygon already drawn; popup attached below via building_id lookup.
+  } else {
+    L.marker([s.lat, s.lon], { icon: pinIcon(s.order, false) })
+      .addTo(map)
+      .bindPopup(popupHtml(s));
+  }
+  bounds.push([s.lat, s.lon]);
+});
+
+// Attach popups to polygons by matching building_id.
+map.eachLayer(function(layer){
+  if (!layer.feature || !layer.feature.properties) return;
+  const bid = layer.feature.properties.building_id;
+  const stop = STOPS.find(s => s.building_id === bid);
+  if (stop) layer.bindPopup(popupHtml(stop));
+});
+
+// Reserves live in their own layer so the user can toggle them on/off.
+// Default OFF — the map shows clean primary stops; tap the "Reserves" box
+// to reveal grey backup pins on the same street.
+const reserveLayer = L.layerGroup();
+RESERVES.forEach((s,i) => {
+  if (POLY_BIDS.has(s.building_id)) return; // polygon already shown
+  L.marker([s.lat, s.lon], { icon: pinIcon("R"+(i+1), true) })
+    .bindPopup("<strong>R" + (i+1) + ". " + s.address + "</strong><br><em>reserve</em>")
+    .addTo(reserveLayer);
+  bounds.push([s.lat, s.lon]);
+});
+if (RESERVES.length > 0) {
+  L.control.layers(null,
+    { ["Reserves (" + RESERVES.length + ")"]: reserveLayer },
+    { collapsed: false, position: "topright" }
+  ).addTo(map);
+}
+if (bounds.length) map.fitBounds(bounds, { padding: [20,20] });
+</script>
+</body>
+</html>
