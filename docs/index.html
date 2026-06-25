@@ -235,14 +235,6 @@
         '<div class="pvq-ed-count">' + un + '</div>';
       container.appendChild(fz);
     }
-    if (typeof s.n_finished === 'number') {
-      var note = document.createElement('div');
-      note.className = 'pvq-overall';
-      note.innerHTML = '<div class="meta"><strong>' + s.n_usable + '</strong> usable of <strong>' + s.n_finished +
-        '</strong> finished questionnaires (' + s.n_dropped_unusable +
-        ' dropped &mdash; finished but no complete answer set). Baked at publish time.</div>';
-      container.appendChild(note);
-    }
   }
   function renderRates(o){
     if (!o || !(o.answered_combined > 0 || o.eligible_combined > 0)) return;
