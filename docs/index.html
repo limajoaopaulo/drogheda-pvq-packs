@@ -104,7 +104,7 @@
   .pvq-legend .swatch { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:baseline; margin-right:3px; }
 </style>
 <div class="pvq-progress" id="pvq-progress" data-endpoint="https://pvq-field-webhook.joao-dlima.workers.dev">
-  <h2>Live progress</h2>
+  <h2>Questionnaire progress</h2>
   <div class="pvq-progress-total" id="pvq-progress-total">Loading…</div>
   <div class="pvq-progress-unanchored" id="pvq-progress-unanchored"></div>
   <div class="pvq-eds" id="pvq-eds"></div>
@@ -119,82 +119,142 @@
 (function(){
   var root = document.getElementById('pvq-progress');
   if (!root) return;
-  fetch(root.dataset.endpoint, {cache:'no-store'})
-    .then(function(r){ return r.json(); })
-    .then(function(j){
-      var s = j && j.stats;
-      if (!s || s.error) {
-        document.getElementById('pvq-progress-total').textContent = 'Progress unavailable';
-        return;
+  var BAKED = {
+  "stats": {
+    "total": 80,
+    "target_minimum": 96,
+    "target_desirable": 140,
+    "unanchored": 7,
+    "eds": [
+      {
+        "ed": "Fair Gate",
+        "completed": 25,
+        "min": 22,
+        "desirable": 33
+      },
+      {
+        "ed": "St. Peter's",
+        "completed": 13,
+        "min": 20,
+        "desirable": 30
+      },
+      {
+        "ed": "West Gate",
+        "completed": 13,
+        "min": 14,
+        "desirable": 20
+      },
+      {
+        "ed": "St. Mary's (Part)",
+        "completed": 10,
+        "min": 13,
+        "desirable": 19
+      },
+      {
+        "ed": "St. Lawrence Gate",
+        "completed": 8,
+        "min": 9,
+        "desirable": 13
+      },
+      {
+        "ed": "Termonfeckin",
+        "completed": 8,
+        "min": 8,
+        "desirable": 11
+      },
+      {
+        "ed": "Clogher",
+        "completed": 2,
+        "min": 7,
+        "desirable": 10
+      },
+      {
+        "ed": "Monasterboice",
+        "completed": 1,
+        "min": 3,
+        "desirable": 4
       }
-      var min = s.target_minimum, des = s.target_desirable, t = s.total;
-      var pctTotal = Math.min(100, Math.round((t / des) * 100));
-      document.getElementById('pvq-progress-total').innerHTML =
-        '<span class="num">' + t + '</span> completed' +
-        ' <span class="targets">/ ' + min + ' minimum &middot; ' + des + ' desirable (' + pctTotal + '% of desirable)</span>';
-      var un = (s.unanchored && s.unanchored > 0) ? s.unanchored : 5;
-      var unEl = document.getElementById('pvq-progress-unanchored');
-      if (unEl) unEl.innerHTML = un > 0
-        ? '+ <span class="num">' + un + '</span> flyer self-completions'
-        : '';
-      var container = document.getElementById('pvq-eds');
-      container.innerHTML = '';
-      function pct(num, denom) {
-        if (!denom) return '0%';
-        return Math.round(100 * num / denom) + '%';
-      }
-      function colourFor(ed) {
-        // Three regimes on a continuous color wheel:
-        //  below min:        hsl 0  →  60  (red → yellow)
-        //  min → desirable:  hsl 120 → 280 (green → teal → blue → purple, going the long way around)
-        //  at/beyond desir.: hsl 280 (solid purple)
-        if (ed.completed >= ed.desirable) return 'hsl(280, 70%, 45%)';
-        if (ed.completed >= ed.min) {
-          var span = Math.max(1, ed.desirable - ed.min);
-          var u    = Math.min(1, (ed.completed - ed.min) / span);  // 0 at min, 1 at desirable
-          var hue  = 120 + Math.round(160 * u);                    // 120 → 280
-          return 'hsl(' + hue + ', 70%, 45%)';
-        }
-        var t = ed.min > 0 ? Math.min(1, ed.completed / ed.min) : 0;
-        var hue = Math.round(60 * t);                              // 0 → 60
-        return 'hsl(' + hue + ', 80%, 50%)';
-      }
-      s.eds.forEach(function(ed){
-        var denom  = Math.max(1, ed.desirable);
-        var fillPct= Math.min(100, Math.round((ed.completed / denom) * 100));
-        var minPct = Math.min(100, Math.round((ed.min / denom) * 100));
-        var fillColour = colourFor(ed);
-        var div = document.createElement('div');
-        div.className = 'pvq-ed';
-        div.innerHTML =
-          '<div class="pvq-ed-label">' + ed.ed + '</div>' +
-          '<div class="pvq-ed-track">' +
-            '<div class="marker" style="left:' + minPct + '%"></div>' +
-            '<div class="pvq-ed-fill" style="width:' + fillPct + '%; background:' + fillColour + ';"></div>' +
-          '</div>' +
-          '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>';
-        container.appendChild(div);
-      });
-      if (s.overall && (s.overall.answered_combined > 0 || s.overall.eligible_combined > 0)) {
-        var o = s.overall;
-        var ov = document.createElement('div');
-        ov.className = 'pvq-overall';
-        ov.innerHTML =
-          '<div><strong>Refusal rate:</strong> <span class="rate">' +
-            Math.round(100*o.refusal_rate) + '%</span> ' +
-            '<span class="meta">(' + o.refused_combined + ' refused / ' + o.answered_combined + ' answered)</span></div>' +
-          '<div><strong>No-answer rate:</strong> <span class="rate">' +
-            Math.round(100*o.no_answer_rate) + '%</span> ' +
-            '<span class="meta">(' + o.no_answer_combined + ' / ' + o.eligible_combined + ' eligible attempts)</span></div>' +
-          '<div class="meta" style="margin-top:0.3rem">Combined current campaign (' + o.field_attempts_current +
-            ' attempts) + 2025 pilot (' + o.field_attempts_pilot + ' attempts). ' +
-            '<em>Answered = completed + flyer + refused. Eligible = attempts excluding vacant &amp; not-residential.</em></div>';
-        container.appendChild(ov);
-      }
-    })
-    .catch(function(){
-      document.getElementById('pvq-progress-total').textContent = 'Progress unavailable (offline?)';
+    ],
+    "n_finished": 90,
+    "n_usable": 87,
+    "n_dropped_unusable": 3
+  }
+};
+  function colourFor(ed) {
+    // below min: hsl 0→60 (red→yellow); min→desirable: hsl 120→280; at/beyond: purple.
+    if (ed.completed >= ed.desirable) return 'hsl(280, 70%, 45%)';
+    if (ed.completed >= ed.min) {
+      var span = Math.max(1, ed.desirable - ed.min);
+      var u    = Math.min(1, (ed.completed - ed.min) / span);
+      var hue  = 120 + Math.round(160 * u);
+      return 'hsl(' + hue + ', 70%, 45%)';
+    }
+    var t = ed.min > 0 ? Math.min(1, ed.completed / ed.min) : 0;
+    return 'hsl(' + Math.round(60 * t) + ', 80%, 50%)';
+  }
+  function renderBaked(j){
+    var s = j && j.stats;
+    if (!s) { document.getElementById('pvq-progress-total').textContent = 'Progress unavailable'; return; }
+    var min = s.target_minimum, des = s.target_desirable, t = s.total;
+    var pctTotal = Math.min(100, Math.round((t / des) * 100));
+    document.getElementById('pvq-progress-total').innerHTML =
+      '<span class="num">' + t + '</span> usable completes' +
+      ' <span class="targets">/ ' + min + ' minimum &middot; ' + des + ' desirable (' + pctTotal + '% of desirable)</span>';
+    var un = (s.unanchored && s.unanchored > 0) ? s.unanchored : 0;
+    var unEl = document.getElementById('pvq-progress-unanchored');
+    if (unEl) unEl.innerHTML = un > 0
+      ? '+ <span class="num">' + un + '</span> usable completes without a zone'
+      : '';
+    var container = document.getElementById('pvq-eds');
+    container.innerHTML = '';
+    s.eds.forEach(function(ed){
+      var denom  = Math.max(1, ed.desirable);
+      var fillPct= Math.min(100, Math.round((ed.completed / denom) * 100));
+      var minPct = Math.min(100, Math.round((ed.min / denom) * 100));
+      var div = document.createElement('div');
+      div.className = 'pvq-ed';
+      div.innerHTML =
+        '<div class="pvq-ed-label">' + ed.ed + '</div>' +
+        '<div class="pvq-ed-track">' +
+          '<div class="marker" style="left:' + minPct + '%"></div>' +
+          '<div class="pvq-ed-fill" style="width:' + fillPct + '%; background:' + colourFor(ed) + ';"></div>' +
+        '</div>' +
+        '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>';
+      container.appendChild(div);
     });
+    if (typeof s.n_finished === 'number') {
+      var note = document.createElement('div');
+      note.className = 'pvq-overall';
+      note.innerHTML = '<div class="meta"><strong>' + s.n_usable + '</strong> usable of <strong>' + s.n_finished +
+        '</strong> finished questionnaires (' + s.n_dropped_unusable +
+        ' dropped &mdash; finished but no complete answer set). Baked at publish time.</div>';
+      container.appendChild(note);
+    }
+  }
+  function renderRates(o){
+    if (!o || !(o.answered_combined > 0 || o.eligible_combined > 0)) return;
+    var ov = document.createElement('div');
+    ov.className = 'pvq-overall';
+    ov.innerHTML =
+      '<div><strong>Refusal rate:</strong> <span class="rate">' +
+        Math.round(100*o.refusal_rate) + '%</span> ' +
+        '<span class="meta">(' + o.refused_combined + ' refused / ' + o.answered_combined + ' answered)</span></div>' +
+      '<div><strong>No-answer rate:</strong> <span class="rate">' +
+        Math.round(100*o.no_answer_rate) + '%</span> ' +
+        '<span class="meta">(' + o.no_answer_combined + ' / ' + o.eligible_combined + ' eligible attempts)</span></div>' +
+      '<div class="meta" style="margin-top:0.3rem">Field attempts: current campaign (' + o.field_attempts_current +
+        ') + 2025 pilot (' + o.field_attempts_pilot + '). ' +
+        '<em>Answered = completed + flyer + refused. Eligible = attempts excluding vacant &amp; not-residential.</em></div>';
+    document.getElementById('pvq-eds').appendChild(ov);
+  }
+  renderBaked(BAKED);
+  var ep = root.dataset.endpoint;
+  if (ep && ep !== 'null' && ep !== '') {
+    fetch(ep, {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(j){ if (j && j.stats) renderRates(j.stats.overall); })
+      .catch(function(){});
+  }
 })();
 </script>
 <h2 id="ed-intercept">Street intercept</h2>
