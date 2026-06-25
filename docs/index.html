@@ -195,16 +195,14 @@
   function renderBaked(j){
     var s = j && j.stats;
     if (!s) { document.getElementById('pvq-progress-total').textContent = 'Progress unavailable'; return; }
-    var min = s.target_minimum, des = s.target_desirable, t = s.total;
+    var un = (s.unanchored && s.unanchored > 0) ? s.unanchored : 0;
+    var min = s.target_minimum, des = s.target_desirable, t = (s.total || 0) + un;
     var pctTotal = Math.min(100, Math.round((t / des) * 100));
     document.getElementById('pvq-progress-total').innerHTML =
-      '<span class="num">' + t + '</span> usable completes' +
+      '<span class="num">' + t + '</span> completed' +
       ' <span class="targets">/ ' + min + ' minimum &middot; ' + des + ' desirable (' + pctTotal + '% of desirable)</span>';
-    var un = (s.unanchored && s.unanchored > 0) ? s.unanchored : 0;
     var unEl = document.getElementById('pvq-progress-unanchored');
-    if (unEl) unEl.innerHTML = un > 0
-      ? '+ <span class="num">' + un + '</span> usable completes without a zone'
-      : '';
+    if (unEl) unEl.innerHTML = '';
     var container = document.getElementById('pvq-eds');
     container.innerHTML = '';
     s.eds.forEach(function(ed){
@@ -222,6 +220,15 @@
         '<div class="pvq-ed-count">' + ed.completed + ' / ' + ed.min + ' &middot; ' + ed.desirable + '</div>';
       container.appendChild(div);
     });
+    if (un > 0) {
+      var fz = document.createElement('div');
+      fz.className = 'pvq-ed';
+      fz.innerHTML =
+        '<div class="pvq-ed-label">Flyer / no zone</div>' +
+        '<div class="pvq-ed-track"></div>' +
+        '<div class="pvq-ed-count">' + un + '</div>';
+      container.appendChild(fz);
+    }
     if (typeof s.n_finished === 'number') {
       var note = document.createElement('div');
       note.className = 'pvq-overall';
