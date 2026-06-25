@@ -223,9 +223,15 @@
     if (un > 0) {
       var fz = document.createElement('div');
       fz.className = 'pvq-ed';
+      // No target for the flyer/no-zone stratum — scale its bar against the
+      // largest ED target so it reads at the same visual scale as the ED bars.
+      var maxDes = Math.max.apply(null, s.eds.map(function(e){ return e.desirable; }).concat([1]));
+      var fzPct = Math.max(4, Math.min(100, Math.round(un / maxDes * 100)));
       fz.innerHTML =
         '<div class="pvq-ed-label">Flyer / no zone</div>' +
-        '<div class="pvq-ed-track"></div>' +
+        '<div class="pvq-ed-track">' +
+          '<div class="pvq-ed-fill" style="width:' + fzPct + '%; background:hsl(280,70%,45%);"></div>' +
+        '</div>' +
         '<div class="pvq-ed-count">' + un + '</div>';
       container.appendChild(fz);
     }
